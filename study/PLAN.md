@@ -75,7 +75,7 @@ Card frames, bars, numbers, fire/explosion/sparks = code.
       (`git config user.name Artem`, `user.email 208152625+bankaino@users.noreply.github.com`), commit "scaffold".
       SIM: rewrite sim.js to the game above with placeholders; headless tuning (`SIM.at`) until demoCheck passes;
       passive endcard ≤ 12 s; adapt smoke_test.mjs taps. `verify.sh` green. Commit.
-- [ ] 2. SCENE: side-view world + rigs + HUD layout + cards/energy/progress bar + juice per verb (instant/short/long) +
+- [x] 2. SCENE: side-view world + rigs + HUD layout + cards/energy/progress bar + juice per verb (instant/short/long) +
       sounds in audio.js (clank, bow twang, bomb boom, saw whirr, fire roar, coin). `verify.sh` green. Commit.
 - [ ] 3. ART (Gate A): art/style_bible.txt (≤ 6 lines, measured from study/ref) → one prompt per asset in art/prompts/
       (see `<S>/template/prompts` as examples) → art/jobs.json → `python <S>/scripts/gen_batch.py art/jobs.json`
@@ -101,4 +101,17 @@ Card frames, bars, numbers, fire/explosion/sparks = code.
   Known leftovers for later phases: variants/*.json are still Timber Rush overrides (rewrite in phase 5); build.json still lists the
   template's textures (rename in phase 3); audio.js still has the harvester engine + tree-cut SFX (rewrite in phase 2); ENERGY shop card
   (10 coins, +0.3/s) and CART+ (100, +200 HP) exist in sim but the demo only buys SAW.
+- 2026-10-09 phase 2 DONE (Sonnet 5.5): `live/scene.js` rewritten — sky + 3 parallax layers (cliffs 0.12, far pines 0.3, near pines 0.62), ground
+  with tufts/stones, towers (bricks, timber beams, cracks by HP, "2.0K"-style HP number, collapse + rubble + 14 stone chunks), skeleton rig
+  (walk cycle, sword swing in melee, shield/helmet variants, HP bar, bone-scatter death), cart rig `drawCart(ox, base, scale, opts)` (3 wheels
+  with spokes, crates — tier 2 pops two more with overshoot —, spinning saw, 2 flamethrowers, archer with cape + aimed crossbow + recoil, vertical HP
+  bar; reused big on the endcard), bombs in flight, rolling saw blades, flame cones, explosions/sparks/dust, coins flying to the HUD pill with
+  honest displayed money, shake trauma. HUD: logo shield, 5-flag progress bar (flags turn red per tower), coin pill, shop cards (green
+  CART+/ENERGY, SAW, locked FIRE, START), energy panel + blue/grey ability cards with ⚡ chips, ⬆250 bubble, tutorial banner + hand pointing at `S.hint`,
+  callouts, CTA bar, endcard (headline by endWhy, drawn cart, stats, whole-screen CTA, replay). `SPR` set in scene.js = names with real art (empty until phase 3).
+  `live/audio.js` rewritten (clank on buy, crossbow twang, bones+coin, grind, bomb, saw-throw, impact, flame roar loop, tower collapse, upgrade arpeggio, cart rumble).
+  Layout fixes found by qa.mjs: shop cards h=170, big cards y=H-570, callouts at 0.2·H (banner hides while a callout shows), endcard stack moved down.
+  `verify.sh` = VERIFY OK (code 108 KB, fps 61). Critic run on phase 2: study/critique/phase2.md.
+  Phase 3 TODO from this phase: when real sprites land, add their names to `SPR` and swap the matching rig part (cart_body, wheel, crate_tier, saw_blade,
+  flamethrower, archer, skel_body/skel_leg, tower, bomb, coin, hand, logo_shield, pine_*, bg_mountains, rubble); keep rig motion (spin/swing) in code.
 

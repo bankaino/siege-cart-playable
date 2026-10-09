@@ -25,8 +25,8 @@
   const R = (x, y, w, h) => ({ x, y, w, h });
   const CY = H - 470;
   const UI = {
-    saw: R(540, GY + 60, 190, 190), firelock: R(750, GY + 60, 190, 190),            // shop: item cards next to the cart
-    cart: R(120, H - 610, 400, 190), energy: R(560, H - 610, 400, 190), start: R(300, H - 390, 480, 150),
+    saw: R(540, GY + 60, 190, 170), firelock: R(750, GY + 60, 190, 170),            // shop: item cards next to the cart
+    cart: R(120, H - 570, 400, 170), energy: R(560, H - 570, 400, 170), start: R(300, H - 390, 480, 150),
     bomb: R(W - 30 - 3 * 190 - 28, CY, 190, 190), sawt: R(W - 30 - 2 * 190 - 14, CY, 190, 190), fire: R(W - 30 - 190, CY, 190, 190),
     enbar: R(30, CY, 380, 190),                                                      // energy panel (display only)
     bubble: R(CART_SX - 150, GY - 600, 300, 130),                                    // ⬆ price bubble over the archer
