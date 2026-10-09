@@ -1,1 +1,4 @@
-{}
+{
+  "hypothesis": "CONTROL. Shop first (3 s: tap SAW, tap START), then auto-battle with energy cards, tower 1 ~9.5 s, transformation ~11 s, FIRE ~13 s, endcard ~17 s. Baseline for 3 s tap-rate, completion rate and CTR.",
+  "K": {}
+}

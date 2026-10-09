@@ -1,6 +1,0 @@
-Use case: towed log-trailer sprite for a 2D top-down mobile game; several follow the harvester like a train and are rotated in code, so it MUST be a plan view.
-Subject: a short chunky low-poly forestry trailer seen in PLAN VIEW from DIRECTLY OVERHEAD (camera 90 degrees straight down, orthographic), matching the harvester in Image 2 (same green #3c9c22 and yellow #f0c41c, same chunky near-black tyres seen from above). The trailer bed is fully LOADED with a neat stack of light-brown cut logs lying lengthwise (front to back), their round pale cut ends visible at the rear; yellow stake posts along both sides; four tyres sticking out on the left and right; a short dark tow bar with a hitch ring at the FRONT (top of the canvas).
-Proportions: compact, about 1.5 times longer than wide (not a long plank).
-Orientation: pointing straight UP (hitch at the top). Perfectly left-right symmetric. No perspective, no visible side faces.
-Composition: one trailer, centred, occupying about 70% of the canvas height, generous empty margin.
-Constraints: one object only, no ground, no shadow, no text.

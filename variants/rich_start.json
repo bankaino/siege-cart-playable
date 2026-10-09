@@ -1,7 +1,6 @@
 {
-  "hypothesis": "215 start coins let the player buy SAW and CART+ (or ENERGY) before START: ownership of two upgrades in the first 3 s without the 120-coin dead end. Same demo timeline; tests whether shop agency lifts first-tap rate and install intent.",
+  "hypothesis": "SHOP. 215 start coins instead of 120: SAW and CART+ (stronger cart, +200 HP) are both affordable before START, so the player owns two upgrades in the first 3 s without the 120-coin dead end. Tests whether shop agency lifts first-tap rate and install intent. Expected metric: 3 s tap-rate, CTR.",
   "K": {
-    "START_MONEY": 215,
-    "UP_COST": 230
+    "START_MONEY": 215
   }
 }

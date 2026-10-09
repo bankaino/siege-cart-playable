@@ -1,8 +1,6 @@
 {
-  "hypothesis": "Faster energy and cheaper FIRE pull the first wow earlier (tower 1 ~9 s -> ~8 s, transformation and endcard ~1.5 s sooner). Tests whether tighter time-to-wow raises completion and CTR versus the default's longer tower-2 fight.",
+  "hypothesis": "ENERGY. Energy fills 1.8x faster (1.8/s vs 1.0/s): a card is ready almost every second, so the fight is tap-heavy and the wow moments come ~2 s earlier. Tests whether more taps per second (agency) beats the calmer default pacing. Expected metric: taps per session, completion.",
   "K": {
-    "EN_RATE": 1.4,
-    "COST_FIRE": 5,
-    "UP_AUTO": 2.0
+    "EN_RATE": 1.8
   }
 }

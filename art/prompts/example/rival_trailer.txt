@@ -1,4 +1,0 @@
-Use case: enemy towed log-trailer sprite for a 2D top-down mobile game.
-Edit of Image 2: keep EXACTLY the same trailer, plan view, outline, proportions, logs and tyres; change ONLY the colours: green chassis parts become saturated red #d8261c (lit #ff4a36, shade #8e140e) and the yellow stakes become near-black #2a2624. Logs stay light brown, tyres stay near-black.
-Composition: identical to Image 2.
-Constraints: one object only, no text, no shadow, no ground.

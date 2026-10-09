@@ -6,3 +6,5 @@ art/logs/
 dist/
 node_modules/
 ref.png
+art/*.resolved.json
+art/placeholder/

@@ -1,4 +1,0 @@
-Use case: seamless tileable ground texture for a top-down mobile game.
-Subject: forest floor seen straight from above: flat dark olive-green ground (#23400f to #2c5214) scattered with many small red-brown dots and tiny low-poly stumps/needle clumps (#7a3a1c, #5a2a12), each dot 1-2% of the tile width, evenly distributed with no clusters, no paths, no trees, no rocks.
-Composition: fills the whole square canvas edge to edge; must tile seamlessly on all four sides; flat even lighting, no vignette, no large features.
-Constraints: no trees, no objects, no shadows, no text.

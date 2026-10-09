@@ -1,4 +1,0 @@
-Use case: enemy vehicle sprite for a 2D top-down mobile game, the evil twin of the player's harvester (Image 2).
-Edit of Image 2: keep EXACTLY the same machine, plan view, outline, proportions, tyres, boom and cutting head; change ONLY the colours: the green bodywork becomes saturated red #d8261c (lit facets #ff4a36, shade facets #8e140e), the yellow stripes and the yellow cutting-head frame become near-black #2a2624 with dark grey #4a4440 accents. Tyres stay near-black, glass stays dark tinted.
-Composition: identical to Image 2 (same canvas placement, pointing straight up).
-Constraints: one vehicle only, no text, no shadow, no ground.

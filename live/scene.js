@@ -13,6 +13,7 @@
   const ease = (x) => 1 - (1 - x) * (1 - x), clamp = (x, a, b) => Math.max(a, Math.min(b, x)), mix = (a, b, w) => L.lerpP(a, b, w);
   const WHITE = [1, 1, 1], GOLD = [1, 0.82, 0.2], GOLD2 = [0.85, 0.55, 0.05];
   S.hit = [];
+  const CP = (window.VARIANT && window.VARIANT.copy) || {};                       // A/B copy overrides (variants/<name>.json → "copy")
 
   // ---------- shape helpers (screen px) ----------
   const circ = (x, y, r, c0, c1 = c0, a = 1) => L.rrect(x - r, y - r, 2 * r, 2 * r, r, c0, c1, a);
@@ -231,27 +232,27 @@
     if (ST.end < 0 && ST.hint) { const r = UI[ST.hint], bn = 1 + 0.04 * Math.sin(t * 6), txt = BAN[ST.hint], tw = L.labelW('tut', txt, { size: Math.round(62 * bn), font: FONT });
       if (!calloutOn) { L.rrect(W / 2 - tw / 2 - 40, 330 - 56, tw + 80, 112, 56, [0.05, 0.08, 0.14], [0.02, 0.03, 0.06], 0.72); L.uiBox('tutbox', W / 2 - tw / 2 - 40, 330 - 56, tw + 80, 112, 4);
         L.label('tut', txt, W / 2, 330, { size: Math.round(62 * bn), font: FONT, col: '#ffffff', out: '#102a40', al: 0.5 }); }
-      const hx = r.x + r.w * 0.66, hyy = r.y + r.h * 0.34 + 8 * Math.sin(t * 7), tapq = (t * 1.1) % 1, down = tapq > 0.6, hs = down ? 0.9 : 1, rr = 30 + 60 * ease(Math.min(1, tapq * 1.2));
+      const hx = r.x + r.w * (ST.hint === 'start' ? 0.9 : 0.66), hyy = r.y + r.h * 0.34 + 8 * Math.sin(t * 7), tapq = (t * 1.1) % 1, down = tapq > 0.6, hs = down ? 0.9 : 1, rr = 30 + 60 * ease(Math.min(1, tapq * 1.2));
       if (down) L.ring(hx, hyy, rr, rr, WHITE, 0.55 * (1 - Math.min(1, (tapq - 0.6) / 0.4)), 0.1);
       put('hand', hx, hyy, 135 * hs, { ax: 0.5, ay: 0.02, ang: -0.75 }); }                                                                                      // fingertip on the card, hand tilts away from the price
     if (ST.end < 0) { const bw = 330, bh = 104, bx = W - bw - 36, by = H - bh - 44, pul = 1 + 0.03 * Math.sin(t * 5);                                              // persistent CTA bar
       L.rrect(24, by - 18, W - 48, bh + 36, 30, [0.06, 0.08, 0.14], [0.03, 0.04, 0.08], 0.74); L.uiBox('ctabar', 24, by - 18, W - 48, bh + 36, 4);
       L.label('brand', 'SIEGE CART', 70, by + bh / 2, { size: 50, font: FONT, col: '#ffd84a', out: '#2a1a00' });
       L.rrect(bx - (pul - 1) * bw / 2, by - (pul - 1) * bh / 2, bw * pul, bh * pul, bh / 2, [0.35, 0.8, 0.4], [0.12, 0.6, 0.2]); L.uiBox('cta', bx, by, bw, bh, 2);
-      L.label('cta', 'PLAY FREE', bx + bw / 2, by + bh / 2, { size: 50, font: FONT, col: '#ffffff', out: '#0a3a14', al: 0.5 }); S.hit.push({ id: 'cta', x: bx, y: by, w: bw, h: bh }); }
+      L.label('cta', CP.cta || 'PLAY FREE', bx + bw / 2, by + bh / 2, { size: 50, font: FONT, col: '#ffffff', out: '#0a3a14', al: 0.5 }); S.hit.push({ id: 'cta', x: bx, y: by, w: bw, h: bh }); }
 
     // ===================== endcard =====================
     if (ST.end >= 0) { const oy = (H - 1920) / 2, a = GT - ST.end, k = SS(0, 0.45, a), pop = (d) => { const q = clamp((a - d) / 0.35, 0, 1); return q < 1 ? 1.12 * ease(q) - 0.12 * q * q : 1; };
       L.solid(0, 0, W, H, [0.02, 0.04, 0.08], 0, 0, 0, 0.86 * k);
-      const head = ST.endWhy === 'win' ? 'YOU CRUSHED IT!' : ST.endWhy === 'lose' ? 'SO CLOSE!' : 'BUILD THE ULTIMATE CART', s1 = pop(0.2);
+      const head = ST.endWhy === 'win' ? (CP.win || 'YOU CRUSHED IT!') : ST.endWhy === 'lose' ? 'SO CLOSE!' : 'BUILD YOUR CART!', s1 = pop(0.2);
       if (s1 > 0.01) { L.label('head', head, W / 2, 310 + oy, { size: Math.round(72 * s1), font: FONT, col: '#ffffff', out: '#102a40', al: 0.5 });
         L.label('logo', 'SIEGE CART', W / 2, 430 + oy, { size: Math.round(124 * s1), font: FONT, col: '#ffd84a', out: '#3a2000', al: 0.5 });
-        L.label('tag', 'Smash towers. Upgrade your cart!', W / 2, 540 + oy, { size: 52, font: FONT, col: '#ffffff', out: '#102a40', al: 0.5, a: k }); }
+        L.label('tag', CP.tag || 'Smash towers. Upgrade your cart!', W / 2, 540 + oy, { size: 52, font: FONT, col: '#ffffff', out: '#102a40', al: 0.5, a: k }); }
       const sm = pop(0.35); if (sm > 0.01) { L.glow(W / 2 - 40, 880 + oy, 340, [1, 0.85, 0.4], 0.25, 2.2); drawCart(W / 2 - 20, 1180 + oy + (1 - sm) * 200, 0.9 * sm, { tier: 2, saw: true, dist: t * 90, moving: true, hurt: 0, upAge: 99, sawBuy: 99, grind: false, recoil: 0, aim: -0.1 + 0.03 * Math.sin(t * 3), hpBar: false }); }
-      const s2 = pop(0.45); if (s2 > 0.01) L.label('stat', ST.kills + ' SKELETONS SMASHED · ' + ST.towersDown + ' TOWERS DOWN', W / 2, 1230 + oy, { size: Math.round(42 * s2), font: FONT, col: '#bff58a', out: '#173307', al: 0.5 });
+      const s2 = pop(0.45); if (s2 > 0.01) L.label('stat', ST.kills + (ST.kills === 1 ? ' SKELETON' : ' SKELETONS') + ' SMASHED · ' + ST.towersDown + (ST.towersDown === 1 ? ' TOWER' : ' TOWERS') + ' DOWN', W / 2, 1230 + oy, { size: Math.round(42 * s2), font: FONT, col: '#bff58a', out: '#173307', al: 0.5 });
       const s3 = pop(0.7), pul = 1 + 0.045 * Math.sin(t * 6), bw = 640 * s3 * pul, bh = 170 * s3 * pul, bx = W / 2 - bw / 2, by = 1420 + oy - bh / 2;
       if (s3 > 0.01) { L.glow(W / 2, 1420 + oy, 420, [1, 0.8, 0.3], 0.3, 2.2); L.rrect(bx, by + 12, bw, bh, bh / 2, [0.55, 0.30, 0.02], [0.45, 0.22, 0.0]); L.rrect(bx, by, bw, bh, bh / 2, [1.0, 0.86, 0.30], [0.98, 0.58, 0.10]); L.uiBox('endcta', bx, by, bw, bh, 2);
-        L.label('endcta', 'PLAY FREE', W / 2, by + bh / 2, { size: Math.round(86 * s3), font: FONT, col: '#ffffff', out: '#7a3a00', al: 0.5 }); S.hit.push({ id: 'cta', x: bx, y: by, w: bw, h: bh }); }
+        L.label('endcta', CP.cta || 'PLAY FREE', W / 2, by + bh / 2, { size: Math.round(86 * s3), font: FONT, col: '#ffffff', out: '#7a3a00', al: 0.5 }); S.hit.push({ id: 'cta', x: bx, y: by, w: bw, h: bh }); }
       if (a > 1.2) { L.label('replay', '↻ REPLAY', W / 2, 1620 + oy, { size: 58, font: FONT, col: '#ffffff', out: '#102a40', al: 0.5, a: SS(1.2, 1.6, a) }); S.hit.unshift({ id: 'replay', x: W / 2 - 170, y: 1570 + oy, w: 400, h: 100 }); }
       if (a > 0.6) S.hit.push({ id: 'cta', x: 0, y: 0, w: W, h: H }); }
   };

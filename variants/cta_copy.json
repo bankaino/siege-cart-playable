@@ -1,0 +1,9 @@
+{
+  "hypothesis": "COPY. Same game, different words: store button says INSTALL and the endcard headline/tagline are action-first instead of praise-first. Isolates the CTA text effect. Expected metric: CTR on the store button and endcard.",
+  "K": {},
+  "copy": {
+    "cta": "INSTALL",
+    "win": "CRUSH THEM ALL!",
+    "tag": "Upgrade. Smash. Repeat."
+  }
+}

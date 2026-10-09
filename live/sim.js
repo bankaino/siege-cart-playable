@@ -17,7 +17,7 @@
     SAW_DPS: 700, SK_HP: 360, SK_SPD: 120, SK_DPS: 28, SK_REACH: 30, SPAWN_GAP: 0.8, KILL_COIN: 15, TOWER_COIN: 200,
     UP_COST: 250, UP_AUTO: 2.8, SHOP_AUTO: 3.2, HAND_IDLE: 2.5, DEMO_DELAY: 0.6,
     END_AFTER_WIN: 2.0, END_AFTER_LOSE: 1.6, END_MAX: 28, END_NO_INPUT: 15, END_IDLE: 12,
-    EN_START: 1.0, AUTO_IDLE: 3.5, AUTO_GAP: 2.4, FIRE_DELAY: 1.3,
+    SHOP_MAX: 7, END_ABS: 26, END_HOLD_AFTER_UP: 3.5, COMBAT_FIRST: 0, EN_START: 1.0, AUTO_IDLE: 3.5, AUTO_GAP: 2.4, FIRE_DELAY: 1.3,
   };
   // towers: x in world px, hp, wave size, skeleton hp multiplier
   const TOWERS = [{ x: 1500, hp: 2000, n: 7, m: 1, wake: 1300, gap: 0.8 }, { x: 2300, hp: 3400, n: 10, m: 1.35, wake: 1000, gap: 0.45 }];
@@ -45,7 +45,8 @@
       pend: [], blades: [], fireUntil: -9, fireAcc: 0, used: { bomb: 0, sawt: 0, fire: 0 }, bought: { saw: 0, cart: 0, energy: 0 }, up: null, upDone: 0, upT: -9,
       hint: null, hintT: 0, prog: 0, winT: -9, loseT: -9, end: -1, endWhy: '', lastIn: 0, firstIn: -1, sawEvT: 0 };
   }
-  const spawn = (worldT) => Object.assign(create(), { wt0: worldT });
+  function create0() { const S = create(); if (K.COMBAT_FIRST) { S.bought.saw = 1; S.p.saw = true; S.money -= K.COST_SAW; S.phase = 'battle'; S.en = K.EN_START; } return S; }
+  const spawn = (worldT) => Object.assign(create0(), { wt0: worldT });
   const respawn = (S, worldT) => spawn(worldT);
   const outOfPlay = () => false;
 
@@ -90,9 +91,11 @@
     else { S.fireUntil = S.t + K.FIRE_TIME; push(S, { k: 'fire', x: p.x }); }
   }
   function tap(S, x, y) {
+    const hot = S.phase === 'shop' ? hitUI(['saw', 'cart', 'energy', 'start', 'firelock'], x, y) : hitUI(['bubble', 'bomb', 'sawt', 'fire'], x, y);
+    if (!hot) return;                                                                    // taps on empty space are not input: they never delay the shop or the endcard
     S.lastIn = S.t; if (S.firstIn < 0) S.firstIn = S.t;
     if (S.phase === 'shop') {
-      const id = hitUI(['saw', 'cart', 'energy', 'start', 'firelock'], x, y); if (!id) return;
+      const id = hot;
       if ((id === 'cart' || id === 'energy') && !S.bought.saw) { push(S, { k: 'nope', id, need: 0, msg: 'BUY THE SAW FIRST!' }); return; }
       const buy = (cost, key, fn) => { if (S.bought[key]) return; if (S.money < cost) { push(S, { k: 'nope', id, need: cost - S.money, coin: 1 }); return; }
         S.money -= cost; S.bought[key] = 1; fn(); push(S, { k: 'buy', id, cost }); };
@@ -103,7 +106,7 @@
       else if (id === 'start') go(S);
       return;
     }
-    const id = hitUI(['bubble', 'bomb', 'sawt', 'fire'], x, y); if (!id) return;
+    const id = hot;
     if (id === 'bubble') { if (S.up && S.t >= S.up.t0 && !S.upDone) { if (S.money >= K.UP_COST) doUpgrade(S, false); else push(S, { k: 'nope', id, need: K.UP_COST - S.money, coin: 1 }); } }
     else useAbility(S, id);
   }
@@ -128,7 +131,7 @@
     if (S.freeze > 0) { S.freeze -= DT; return S; }
     const p = S.p;
     if (inp.click && inp.px !== undefined && S.end < 0) tap(S, inp.px, inp.py);
-    if (S.phase === 'shop' && S.end < 0 && t - S.lastIn > K.SHOP_AUTO) go(S);          // a passive viewer still sees the world move
+    if (S.phase === 'shop' && S.end < 0 && (t - S.lastIn > K.SHOP_AUTO || t > K.SHOP_MAX)) go(S);          // a passive viewer still sees the world move
 
     if (S.phase === 'battle') {
       if (S.end < 0) S.en = Math.min(K.EN_MAX, S.en + S.enRate * DT);
@@ -181,8 +184,10 @@
       S.prog = S.winT > 0 ? 1 : clamp((S.towersDown + (i === S.ti ? 0.5 * seg + 0.5 * dmg : 0)) / S.towers.length, 0, 1); }
 
     // ---- endcard: after the win/lose beat, or when the time box runs out ----
+    const hold = S.fireUntil > t || (S.upDone && t - S.upT < K.END_HOLD_AFTER_UP);       // never cut the transformation / FIRE moment short for an idle viewer
     const why = S.winT > 0 && t - S.winT > K.END_AFTER_WIN ? 'win' : S.loseT > 0 && t - S.loseT > K.END_AFTER_LOSE ? 'lose'
-      : S.firstIn >= 0 && t - S.firstIn > K.END_MAX ? 'time' : S.firstIn < 0 && t > K.END_NO_INPUT ? 'time' : S.firstIn >= 0 && t - S.lastIn > K.END_IDLE ? 'time' : '';
+      : t > K.END_ABS || (S.firstIn >= 0 && t - S.firstIn > K.END_MAX) ? 'time'
+      : hold ? '' : S.firstIn < 0 && t > K.END_NO_INPUT ? 'time' : S.firstIn >= 0 && t - S.lastIn > K.END_IDLE ? 'time' : '';
     if (S.end < 0 && why) { S.end = t; S.endWhy = why; push(S, { k: 'end', x: p.x }); }
 
     // ---- hint (which card the hand points at), camera ----
@@ -217,7 +222,7 @@
   let cache = null;
   function at(t) {
     const loop = Math.floor(t / L), q = t - loop * L, n = Math.round(q / DT);
-    if (!cache || cache.loop !== loop || cache.S.steps > n) { const S0 = Object.assign(create(), { wt0: loop * L }); cache = { loop, S: S0 }; }
+    if (!cache || cache.loop !== loop || cache.S.steps > n) { const S0 = Object.assign(create0(), { wt0: loop * L }); cache = { loop, S: S0 }; }
     const S = cache.S; while (S.steps < n) step(S, scriptInput(S.t, S));
     return Object.assign({}, S, { loop, q, demo: true, inp: scriptInput(S.t, S) });
   }

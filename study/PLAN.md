@@ -137,4 +137,11 @@ Card frames, bars, numbers, fire/explosion/sparks = code.
   added to the shop sequence, endcard 17.5 s), `danger` (SK_DPS 85, HP 300+300, SK_REACH 40 → HP bar drains, endcard 17.4 s). Default: wow 1 at 9.5 s, endcard 16.8 s.
   `python tools/build_playable.py --variant all --pages docs` → dist/<variant>/<network>.html|zip + report.md and the Pages previews in docs/ (index.html = default,
   fast_energy.html, rich_start.html, danger.html). All 4 × 6 networks ≈ 0.50 MB (google zip 0.32 MB; limits 5 MB, Meta 2 MB). verify.sh all = VERIFY OK, fps 60–61.
+- 2026-10-09 Gate B (study/critique/gateB.md: overall 6, publish NO-GO until fixed) → fixes applied: only taps that hit a target count as input (empty taps no longer freeze the shop /
+  stretch the endcard), shop auto-go cap `SHOP_MAX` 7 s, absolute end cap `END_ABS` 26 s, idle/passive endings wait while FIRE plays or <3.5 s after the upgrade
+  (passive viewer now sees both towers + FIRE, endcard 17.7 s), `K.COMBAT_FIRST` hook switch, variants rewritten to ONE variable each (default control, combat_first,
+  fast_energy 1.8/s, rich_start 215 coins, cta_copy via `"copy"` in the variant JSON), endcard headline shortened + plural stats, hand moved off the START label,
+  template leftovers removed (art/gen + live/assets stale names, art/prompts/example, placeholders, resolved jobs), store links → the repo URL (demo), README case study,
+  `tools/perf_probe.mjs` (draw calls 150–300/frame at the busiest beats → listed as a known gap). `verify.sh all` = OK, 0.50 MB, 60–61 fps.
+  PHASE 6 STATUS: everything except the push is done. Waiting for the user's go: public repo name `siege-cart-playable` (bankaino), Pages from /docs, no LICENSE added (user's call).
 

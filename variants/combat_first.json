@@ -1,0 +1,6 @@
+{
+  "hypothesis": "HOOK. Skip the shop: SAW is pre-bought and the cart is already rolling, so the first skeleton is on screen at ~1 s and the first kill at ~2.4 s (control: 4.0 s). Tests whether opening in combat, like the reference video, lifts the 3 s tap-rate and completion more than it loses by dropping the buy-and-build fantasy. Expected metric: 3 s tap-rate, completion.",
+  "K": {
+    "COMBAT_FIRST": 1
+  }
+}

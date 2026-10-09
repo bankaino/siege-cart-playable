@@ -1105,7 +1105,7 @@ void main(){ vec4 c = texture(u_tex, v_uv); o = vec4(c.rgb * u_tint.rgb, c.a) * 
     },
   };
 })();
-Object.assign(SIM.K, {"EN_RATE": 1.8}); window.VARIANT = {"hypothesis": "ENERGY. Energy fills 1.8x faster (1.8/s vs 1.0/s): a card is ready almost every second, so the fight is tap-heavy and the wow moments come ~2 s earlier. Tests whether more taps per second (agency) beats the calmer default pacing. Expected metric: taps per session, completion.", "K": {"EN_RATE": 1.8}, "name": "fast_energy"};</script><script>(function(){var url=function(){return /iphone|ipad|ipod/i.test(navigator.userAgent)?STORE.ios:STORE.android;};
+Object.assign(SIM.K, {"COMBAT_FIRST": 1}); window.VARIANT = {"hypothesis": "HOOK. Skip the shop: SAW is pre-bought and the cart is already rolling, so the first skeleton is on screen at ~1 s and the first kill at ~2.4 s (control: 4.0 s). Tests whether opening in combat, like the reference video, lifts the 3 s tap-rate and completion more than it loses by dropping the buy-and-build fantasy. Expected metric: 3 s tap-rate, completion.", "K": {"COMBAT_FIRST": 1}, "name": "combat_first"};</script><script>(function(){var url=function(){return /iphone|ipad|ipod/i.test(navigator.userAgent)?STORE.ios:STORE.android;};
 window.__openStore=function(){window.open(url(),'_blank');};})();</script><script>
 // LIVE PREVIEW. Scripts and images load with a cache-buster; the page polls its sources and reloads itself when any of
 // them changes, keeping the play state (sessionStorage). Attract demo until a key or click, then play (keyboard + pointer).

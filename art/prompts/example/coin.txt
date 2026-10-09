@@ -1,4 +1,0 @@
-Use case: collectible coin icon for a mobile game HUD and pickups.
-Subject: a single chunky gold coin seen face-on, thick rim, low-poly faceted bevel with flat lit and shaded facets (gold #f6c22a, highlight #ffe680, shade #c3801a), a simple embossed pine-tree silhouette in the centre.
-Composition: one coin centred, filling about 80% of the canvas, margin all round.
-Constraints: no text, no numbers, no sparkles, no glow, no shadow.
