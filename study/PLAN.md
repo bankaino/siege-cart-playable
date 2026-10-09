@@ -71,7 +71,7 @@ Card frames, bars, numbers, fire/explosion/sparks = code.
 
 ## Phases (one Sonnet session each; tick and note results here)
 - [x] 0. Questions answered, project created on placeholders (new.py), refs in study/ref.
-- [ ] 1. GIT first: `git init -b main`, .gitignore (study/ref, frames, art/raw, art/logs, dist), author set per repo
+- [x] 1. GIT first: `git init -b main`, .gitignore (study/ref, frames, art/raw, art/logs, dist), author set per repo
       (`git config user.name Artem`, `user.email 208152625+bankaino@users.noreply.github.com`), commit "scaffold".
       SIM: rewrite sim.js to the game above with placeholders; headless tuning (`SIM.at`) until demoCheck passes;
       passive endcard ≤ 12 s; adapt smoke_test.mjs taps. `verify.sh` green. Commit.
@@ -90,3 +90,15 @@ Card frames, bars, numbers, fire/explosion/sparks = code.
 ## Log
 - 2026-10-09: project created; baseline `verify.sh` on the untouched template = VERIFY OK (demo end 22.1 s, passive
   12.0 s, build 0.12 MB, smoke fps 61). No git yet — phase 1 starts with it.
+- 2026-10-09 phase 1 DONE (Sonnet 5.5): git init + commit "scaffold"; `live/sim.js` rewritten (side view, taps via `inp.click`+`px/py`
+  hit-tested on `SIM.UI`; phases shop→battle; events: buy go spawn bolt dmg kill sawhit throw boom sawt sawimpact fire towerdown
+  upoffer upgrade hurt wreck nope locked end). `S.hint` = card id the hand points at ('saw','start','bomb','sawt','fire','bubble').
+  Camera contract: screen x = CART_SX(300) + (x - cart.x)*S.zoom, ground line y = SIM.GY (0.55·H). Headless timeline:
+  `node tools/timeline.js` → buy saw 1.0, go 1.6, first skeleton 3.4, bomb 4.2 (first reward ≤ 8 s ✓), tower 1 falls 10.7 (wow 1),
+  upgrade 12.1 (wow 2), FIRE 17.4, tower 2 falls 19.9, endcard 21.9 (win); passive viewer endcard 12.0 s.
+  `live/scene.js` is a PLACEHOLDER (flat shapes + real HUD/CTA/endcard/hand/cards) so verify/qa/smoke run — phase 2 replaces the world
+  drawing, keeps HUD blocks. `tools/smoke_test.mjs` now taps SAW→START→BOMB→SAW-THROW→CTA. `verify.sh` = VERIFY OK (build 0.10 MB, fps 61).
+  Known leftovers for later phases: variants/*.json are still Timber Rush overrides (rewrite in phase 5); build.json still lists the
+  template's textures (rename in phase 3); audio.js still has the harvester engine + tree-cut SFX (rewrite in phase 2); ENERGY shop card
+  (10 coins, +0.3/s) and CART+ (100, +200 HP) exist in sim but the demo only buys SAW.
+

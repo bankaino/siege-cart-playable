@@ -1,6 +1,6 @@
 // smoke_test.mjs — plays a built single-file playable headless, like a QA tester on a phone would.
 //   node tools/smoke_test.mjs [dist/default/applovin.html] [--shots dir]
-// Mobile viewport + touch, a stub MRAID container that records mraid.open, a drag that mows for a few seconds, a tap
+// Mobile viewport + touch, a stub MRAID container that records mraid.open, taps (SAW, START, ability cards), a tap
 // on the persistent CTA. Fails (exit 1) on: page errors, any network request other than mraid.js, no coins earned,
 // CTA not reaching mraid.open, fps below 50.
 import { createRequire } from 'node:module'; import path from 'node:path'; import fs from 'node:fs'; import { pathToFileURL } from 'node:url';
@@ -24,13 +24,15 @@ catch (e) { console.log(JSON.stringify({ file: path.basename(file), fails: ['did
 await p.waitForTimeout(600); await p.screenshot({ path: path.join(shots, '0_start.png') });
 const box = await p.locator('canvas').boundingBox(), VIEW = await p.evaluate(() => SIM.VIEW);
 const V = (x, y) => [box.x + x / VIEW.W * box.width, box.y + y / VIEW.H * box.height];
-// drag: thumb down low, push up and swing left/right — like a player mowing
-const [ax, ay] = V(540, 1500); await p.mouse.move(ax, ay); await p.mouse.down();
-const path_ = [[540, 1380], [700, 1400], [700, 1440], [380, 1420], [540, 1380]];
-for (const [x, y] of path_) { const [px, py] = V(x, y); await p.mouse.move(px, py, { steps: 8 }); await p.waitForTimeout(900); }
-await p.screenshot({ path: path.join(shots, '1_mowing.png') });
-await p.mouse.up();
-const money = await p.evaluate(() => SCENE.state && SCENE.state.money);
+// taps like a player: SAW → START → wait for energy → BOMB, SAW-THROW (UI rects come from SIM.UI, so layout changes never break the test)
+const UI = await p.evaluate(() => SIM.UI);
+const tapUI = async (id) => { const r = UI[id], [x, y] = V(r.x + r.w / 2, r.y + r.h / 2); await p.mouse.click(x, y); };
+await tapUI('saw'); await p.waitForTimeout(700); await tapUI('start'); await p.waitForTimeout(4200);
+await p.screenshot({ path: path.join(shots, '1_battle.png') });
+await tapUI('bomb'); await p.waitForTimeout(600); await tapUI('sawt'); await p.waitForTimeout(1500);
+await p.screenshot({ path: path.join(shots, '1b_abilities.png') });
+const st = await p.evaluate(() => SCENE.state && { earned: SCENE.state.earned, saw: SCENE.state.p.saw, phase: SCENE.state.phase, used: SCENE.state.used, kills: SCENE.state.kills });
+const money = st && st.earned;
 const fps = await p.evaluate(() => new Promise((res) => { let n = 0; const t0 = performance.now(); const f = () => { n++; if (performance.now() - t0 < 1000) requestAnimationFrame(f); else res(n); }; requestAnimationFrame(f); }));
 // tap the always-visible CTA
 const cta = await p.evaluate(() => (SCENE.hit || []).find((b) => b.id === 'cta'));
@@ -41,7 +43,9 @@ await browser.close();
 const fails = [];
 if (errors.length) fails.push('page errors: ' + errors.join(' | '));
 const ext = external.filter((u) => !u.endsWith('/mraid.js')); if (ext.length) fails.push('external requests: ' + ext.join(', '));
-if (!(money > 0)) fails.push('no coins after mowing (money=' + money + ')');
+if (!(st && st.saw && st.phase === 'battle')) fails.push('shop taps did not work: ' + JSON.stringify(st));
+if (!(money > 0)) fails.push('no coins earned in battle (earned=' + money + ')');
+if (!(st && st.used.bomb + st.used.sawt > 0)) fails.push('ability cards did not respond: ' + JSON.stringify(st && st.used));
 if (!opened.length) fails.push('CTA did not call mraid.open');
 if (fps < 50) fails.push('fps ' + fps);
 console.log(JSON.stringify({ file: path.basename(file), view: VIEW, money, fps, cta: opened[0] || null, fails }));
