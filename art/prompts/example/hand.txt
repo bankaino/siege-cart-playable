@@ -1,0 +1,4 @@
+Use case: tutorial pointer icon for a mobile game ("drag here" hint).
+Subject: a cartoon white-gloved hand with the index finger pointing straight UP, other fingers curled, chunky toy-like low-poly shading (white #ffffff lit facets, light grey-blue #c9d2e0 shade facets), short cuff at the wrist. The fingertip is at the top centre of the image.
+Composition: one hand, upright, centred horizontally, filling about 80% of the canvas height, margin all round.
+Constraints: no text, no motion lines, no shadow, no glow.

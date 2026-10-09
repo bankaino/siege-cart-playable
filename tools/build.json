@@ -1,0 +1,61 @@
+{
+  "title": "Siege Cart",
+  "store": {
+    "android": "https://play.google.com/store/apps/details?id=com.example.timberrush",
+    "ios": "https://apps.apple.com/app/id0000000000"
+  },
+  "textures": {
+    "ground_tex": [
+      512,
+      "lossy"
+    ],
+    "tree_0": [
+      176,
+      "alpha"
+    ],
+    "tree_1": [
+      176,
+      "alpha"
+    ],
+    "tree_2": [
+      176,
+      "alpha"
+    ],
+    "stump": [
+      64,
+      "alpha"
+    ],
+    "harvester_body": [
+      720,
+      "alpha"
+    ],
+    "rival_body": [
+      720,
+      "alpha"
+    ],
+    "trailer": [
+      340,
+      "alpha"
+    ],
+    "rival_trailer": [
+      340,
+      "alpha"
+    ],
+    "coin": [
+      144,
+      "alpha"
+    ],
+    "hand": [
+      272,
+      "alpha"
+    ],
+    "log": [
+      96,
+      "alpha"
+    ],
+    "mascot": [
+      620,
+      "alpha"
+    ]
+  }
+}

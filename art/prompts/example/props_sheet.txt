@@ -1,0 +1,4 @@
+Use case: prop pieces for a top-down forestry mobile game.
+Subject: four separate low-poly props seen from the game camera (almost straight down): 1) a short tree stump with light cut top showing rings, 2) a single cut log lying horizontally, 3) a small pile of three logs, 4) a small cluster of green pine-needle debris chunks.
+Composition: the four props in one horizontal row, similar visual weight, each centred in its quarter with very wide empty gaps between them, nothing touching, margin to the canvas edges.
+Constraints: exactly four objects, no ground, no shadows, no text.

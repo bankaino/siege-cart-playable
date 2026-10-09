@@ -1,0 +1,4 @@
+Use case: tree sprites for a top-down forestry mobile game (low-poly toy look like Image 1's pine forest).
+Subject: three separate low-poly pine trees, each a stack of 3 faceted cones in saturated greens with a tiny brown trunk stub, seen from the game camera (almost straight down, the cone tips pointing slightly up toward the top of the canvas so the cone sides are visible). Tree 1 medium, tree 2 slightly taller and narrower, tree 3 slightly rounder and lighter green.
+Composition: the three trees in one horizontal row, same size, each centred in its third of the canvas with very wide empty gaps (at least 25% of the canvas width) between them, nothing touching, generous margin to the canvas edges.
+Constraints: exactly three trees, no ground, no grass, no shadows, no other objects.

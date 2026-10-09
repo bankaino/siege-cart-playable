@@ -1,0 +1,4 @@
+Use case: endcard mascot for a mobile game ad (shown big under the logo, also used as the app icon face).
+Subject: a cheerful chunky lumberjack character, waist-up, facing the viewer with a confident grin and a thumbs-up, red-and-black checkered flannel shirt, yellow hard hat, short brown beard, holding a small axe over one shoulder; low-poly toy 3D look with flat facets like the rest of the game, friendly proportions (big head, big hands).
+Composition: one character centred, waist-up, filling about 85% of the canvas height, margin all round.
+Constraints: no text, no logo, no background, no shadow, no glow.
