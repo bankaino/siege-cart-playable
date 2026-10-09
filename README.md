@@ -1,70 +1,124 @@
-# Siege Cart — playable ad, idea → shippable HTML5 in one working day
+# Siege Cart — playable ad, собранный ИИ-пайплайном
 
-A 17-second, one-finger **playable ad** for a fictional casual game: build a war cart, roll out, tap energy cards, topple two skeleton towers, watch the cart transform, hit the store button. Built end-to-end with AI tools as a portfolio case for **playable-ads / creative-automation** work.
+**▶ Играть в браузере / с телефона:** https://bankaino.github.io/siege-cart-playable/
+(A/B-варианты: [combat_first](https://bankaino.github.io/siege-cart-playable/combat_first.html) · [fast_energy](https://bankaino.github.io/siege-cart-playable/fast_energy.html) · [rich_start](https://bankaino.github.io/siege-cart-playable/rich_start.html) · [cta_copy](https://bankaino.github.io/siege-cart-playable/cta_copy.html))
 
-**Play it (best on a phone, or a mobile-size window):** https://bankaino.github.io/siege-cart-playable/ (control build) · A/B builds: [combat_first](https://bankaino.github.io/siege-cart-playable/combat_first.html) · [fast_energy](https://bankaino.github.io/siege-cart-playable/fast_energy.html) · [rich_start](https://bankaino.github.io/siege-cart-playable/rich_start.html) · [cta_copy](https://bankaino.github.io/siege-cart-playable/cta_copy.html).
-Single-file builds for **AppLovin · Unity Ads · ironSource · Mintegral · Google (zip) · Meta** come from `python tools/build_playable.py --variant all` (`dist/<variant>/…`, gitignored).
+<p align="center"><img src="docs/media/gameplay.gif" width="270" alt="геймплей"></p>
 
-| | |
-|---|---|
-| Size | **0.50 MB** per network (limits: 5 MB, Meta 2 MB; Google zip 0.32 MB). Code 104 KB + 25 textures 283 KB (15.8 MB of AI source PNGs → WebP at the drawn size) |
-| Runtime | WebGL2, no engine, no external requests except `mraid.js` / `exitapi.js` (smoke test fails on anything else) |
-| Perf | 60 fps in the headless phone-viewport smoke test (390×844 @2x). ~150–300 draw calls/frame (HUD shapes are not batched yet — see Known gaps) |
-| Length | good player: first kill 4.0 s, tower 1 at 9.5 s, cart transformation 11.0 s, FIRE 12.9 s, victory + endcard 16.8 s. A viewer who does not tap the cards **loses** (cart wrecked at ~9–11 s → "SO CLOSE!" endcard with the store button) |
+Портретная playable-реклама гибрид-казуальной игры про боевую тележку с лучником. Сделана **по мотивам рекламного креатива** (тележка едет вправо, скелеты и каменные башни, карточки способностей за энергию, апгрейд тележки) — со своим брендом, механикой, экономикой и артом. Весь путь от референса до билдов под рекламные сети пройден с ИИ-инструментами: **Claude Code** (код, архитектура, агенты-критики), **Codex / ChatGPT image gen** (весь арт), собственные тулзы для сборки и проверки.
 
-## What the case demonstrates
-- **Reference → playable**: the reference is a 3D "cart vs skeletons" ad (5 frames). I read its loop (shop → auto-battle with energy cards → boss tower → upgrade) and rebuilt a *new* game from it — own name, own art, own tuning (nothing from the reference ships; its frames are not in this repo).
-- **AI toolchain**: Claude Code orchestrates; image generation runs through Codex (ChatGPT plan, 19 generated images → 25 sprites, ~100 s each, 0 re-rolls on the main set because prompts are orientation-explicit: "side view facing right, flat bottom edge, wheels separate"); sprites are **rigged in code** (wheels roll with distance, saw spins faster in contact, skeleton legs swing around the hip, crates pop with overshoot, tower squashes when it falls) so animation costs 0 bytes. Sound is procedural WebAudio (0 bytes).
-- **Hypotheses, not one perfect creative**: five builds from one codebase, one variable each (see below).
-- **Network readiness**: MRAID / DAPI / `window.install` / `FbPlayableAd` / ExitApi adapters, `gameReady`/`gameEnd`, audio mute on viewability, size report per build.
-- **Automation**: `tools/` has the build, a viewer-policy balance printer (`policies.js`), a phone-viewport **smoke test** (taps SAW → START → BOMB → SAW-THROW → CTA; fails on page errors, external requests, no progress, low fps), a headless **timeline** printer for tuning (`node tools/timeline.js`), a draw-call probe, and a prompt generator (`tools/write_prompts.py` → `art/prompts/*.txt` + `art/jobs.json`). `verify.sh` (in the skill) is the definition of "works": syntax, demo beats, passive viewer reaches the endcard, HUD overlap QA on 11 staged screens, build for every network, smoke test.
-- **Independent critics**: three Sonnet sub-agents reviewed the work at gates (`study/critique/*.md`) with measured evidence; their fixes are logged in `study/PLAN.md`.
+![ключевые моменты](docs/media/beats.jpg)
 
-## Ad design (why it is shaped like this)
-Instruction → gameplay → endcard, ≤ 30 s, one tap at a time, medium difficulty.
+## Что внутри за 17 секунд
 
-| t | beat |
-|---|---|
-| 0–3 s | static shop with a pointing hand: tap SAW (95), tap START. Idle for 3.2 s → auto-start so the world always moves |
-| 3–8 s | first skeletons, archer fires by itself, energy card lights up → first BOMB, coins fly into the HUD pill (first reward ≤ 8 s) |
-| ~9.5 s | wow 1: SAW-THROW topples tower 1 (stone chunks, dust, coin shower, flag turns red) |
-| ~11 s | wow 2: ⬆ 250 bubble over the cart → cart grows two crate tiers + flamethrowers, FIRE unlocks and is *paid for* (energy gift) |
-| 13–17 s | FIRE cone melts the wave, tower 2 falls → endcard (whole screen = store, REPLAY small) |
-
-Rules baked into `live/sim.js`: store button visible the whole time; every tap either does something or answers ("NEED 95 COINS", "NOT ENOUGH ENERGY", "BUY THE SAW FIRST!"); taps on empty space never count as input (can't freeze the shop or the endcard timer); the game is **not** self-playing: the cart rolls and the archer shoots, but without BOMB / SAW-THROW / the ⬆ upgrade / FIRE the skeleton waves wreck the cart (`node tools/policies.js` prints what each kind of viewer gets: no taps → lose ~10 s, fast and average tappers win with some HP lost, a 4 s-reaction player loses); the hand keeps pointing at the next useful card; idle endings wait until the transformation/FIRE has played; absolute cap 26 s; losing also ends on the CTA ("SO CLOSE!"). The idle auto-cast / auto-upgrade still exist as `K.AUTO_IDLE` / `K.UP_AUTO` (disabled).
-
-## A/B hypotheses (`variants/*.json`, one variable each)
-| build | variable | hypothesis / expected metric |
+| время | бит | что видит игрок |
 |---|---|---|
-| `default` | — | control |
-| `combat_first` | skip shop (SAW pre-bought, cart already rolling) | first kill 4.0 → 2.4 s; tests opening in combat vs the build fantasy → 3 s tap-rate, completion |
-| `fast_energy` | energy fill 1.0 → 1.8 /s | card ready ~every second, wow ~2.5 s earlier → taps/session, completion |
-| `rich_start` | start coins 120 → 215 | SAW **and** CART+ before START, no 120-coin dead end → 3 s tap-rate, CTR |
-| `cta_copy` | store button + endcard copy ("INSTALL", "CRUSH THEM ALL!") | isolates CTA text → CTR |
+| 0–3 с | хук | рука показывает на карточку пилы: «TAP TO BUILD YOUR CART!», затем START (без касаний игра стартует сама через 3.2 с) |
+| 3–8 с | ядро | выезжают скелеты, лучник стреляет сам, копится энергия → первая бомба, монеты летят в счётчик (первый килл на 4.0 с) |
+| ~9.5 с | вау-момент 1 | бросок пилы по земле валит башню: обломки, пыль, дождь монет, флажок на полосе прогресса краснеет |
+| ~11 с | вау-момент 2 | над тележкой «⬆250» → она вырастает на два яруса, ставятся огнемёты, открывается FIRE (и сразу оплачен энергией) |
+| 13–17 с | развязка | огненный конус плавит волну, вторая башня падает → победа |
+| 17 с+ | эндкард | тележка, статистика, PLAY FREE (весь экран — CTA), REPLAY |
 
-Each variant is verified against the demo planner (`SIM.demoCheck`) and the passive-viewer rule before it is built.
+Принципы из практики плейаблов: хук ≤ 3 с одним пальцем; первая награда ≤ 8 с; **кнопка стора видна всё время**; на каждое действие — отклик (тряска, частицы, звук, след в мире), даже на «нельзя» («NEED 95 COINS», «NOT ENOUGH ENERGY»); тапы по пустому месту не считаются вводом и не продлевают игру; рука возвращается к полезной карточке; эндкард гарантирован всем (жёсткий потолок 26 с).
 
-## Differences from the reference / honest notes
-- Same genre and camera as the reference, **different** game: own brand, own cart/archer/skeleton/tower art, own economy; the hero and pines are generated, not extracted.
-- The reference is real 3D; this is **2.5D**: painted AI sprites with baked soft shading, rigged in 2D. A Unity/Luna Playworks port is a separate step (the sim is deterministic and engine-free, so mechanics and timings port 1:1).
-- Store links point to this repo (`tools/build.json`) because there is no real store listing — replace them with `market://` / App Store URLs for a real network test.
-- Mechanics shown are the ones the game would have (shop, energy cards, towers, upgrade); nothing is promised that a real game wouldn't deliver.
+**Игра не проходится сама.** Тележка едет и стреляет, но без нажатий на BOMB / SAW-THROW / ⬆ / FIRE волны скелетов её разбирают — и проигрыш тоже ведёт на кнопку стора («SO CLOSE!»). Баланс проверяется скриптом `node tools/policies.js`, который играет разными «зрителями»:
 
-## Known gaps / next steps
-- **Draw calls**: ~150–300 per frame at the busiest beats (every HUD `rrect`/`solid` is a draw). Batching HUD shapes and label quads is the first optimisation for low-end Android; no real-device run yet.
-- bg_mountains tiles with a slight colour step at the seam; ground is a code gradient (no generated ground texture).
-- No Pangle / TikTok / Liftoff adapters; no `document.hidden` audio pause (MRAID viewability is handled).
-- Needs a real-device pass and a real network preview (AppLovin/Unity previewers).
+| зритель | результат |
+|---|---|
+| ни одного касания | поражение на ~10.8 с |
+| только SAW + START, дальше ничего | поражение на ~8.8 с |
+| быстрый / средний игрок (реакция 0.7–1.5 с) | победа, HP почти не страдает |
+| реакция 2.5 с | победа с запасом ~263 из 300 HP |
+| реакция 4 с | поражение (уже на второй башне) |
+| демо-прогон (аттракт-режим) | победа на 16.9 с |
 
-## Repo map
+## Билды под рекламные сети — одной командой
+
+```bash
+python tools/build_playable.py --variant all
 ```
-live/      engine (gl.js, lib.js, batch.js) + game: sim.js (deterministic 120 Hz sim, tap input, demo planner), scene.js (rigs, FX, HUD), audio.js
-tools/     build_playable.py (all networks + size report), smoke_test.mjs, timeline.js, perf_probe.mjs, write_prompts.py
-variants/  A/B overrides of SIM.K (+ optional copy)
-art/       style_bible.txt, prompts/, jobs.json, gen/ (AI source images)
-study/     PLAN.md (decisions, phase log with measured numbers), critique/ (3 independent reviews)
-docs/      GitHub Pages previews of every variant
-```
-Run locally: `python -m http.server` in the repo root → `/live/index.html?ad=1` (hot-reload dev page) or open `docs/index.html`.
 
-Built with Claude Code (Opus for planning, Sonnet for execution) on the `ref2playable` skill; art by Codex image generation.
+Каждый билд — **один HTML-файл** без внешних запросов: движок, код, текстуры (WebP в base64) и адаптер сети.
+
+| сеть | размер | лимит | CTA / жизненный цикл |
+|---|---|---|---|
+| AppLovin | 0.50 MB | 5 MB | MRAID `mraid.open` |
+| Unity Ads | 0.50 MB | 5 MB | MRAID |
+| ironSource | 0.50 MB | 5 MB | DAPI `openStoreUrl` |
+| Mintegral | 0.50 MB | 5 MB | `install()`, `gameReady()`, `gameEnd()` |
+| Google Ads | 0.32 MB (zip) | 5 MB | `ExitApi.exit()` |
+| Meta | 0.50 MB | 2 MB | `FbPlayableAd.onCTAClick()` |
+
+Звук выключается, когда реклама не видна (MRAID `viewableChange` / DAPI `audioVolumeChange`). Полный отчёт: [docs/build-report.md](docs/build-report.md).
+
+## Размер и производительность
+
+| что | было | стало | как |
+|---|---|---|---|
+| вес билда | 46 MB (первый Unity WebGL прототип) | **0.50 MB** | свой 2D WebGL2-движок без зависимостей, всё inline |
+| текстуры | 15.8 MB PNG (25 спрайтов из ИИ) | **283 KB** | WebP ровно под размер на экране × 1.4 (`tools/build.json`) |
+| код | — | **104 KB** | симуляция, сцена, звук, адаптеры сетей |
+| звук | — | **0 байт** | процедурный WebAudio (`live/audio.js`) |
+| FPS на мобильном вьюпорте 390×844 | — | **60–61** | headless smoke-тест, GPU-рендер |
+| анимация | — | **0 байт** | риги в коде: колёса катятся по пройденному пути, пила крутится быстрее в контакте, ноги скелета качаются вокруг бедра, ящики вырастают с отскоком, башня проседает при падении |
+
+Экран заполняется на любом телефоне: ширина вида 1080, высота следует соотношению сторон устройства (16:9 … 19.5:9).
+
+## A/B-гипотезы
+
+Вариант = JSON с гипотезой и **одной** переменной (`variants/*.json`), билдится той же командой. Ожидаемая метрика записана в самом файле:
+
+- `default` — контроль.
+- `combat_first` — пропускаем магазин: пила уже куплена, тележка уже едет, первый килл на 2.4 с вместо 4.0 с. *Лучше ли открываться боем, как референс, чем «собери тележку»?* → 3-секундный tap-rate, completion.
+- `fast_energy` — энергия 1.8/с вместо 1.0/с: карточка готова почти каждую секунду, вау-моменты ~на 2.5 с раньше. *Агентность против спокойного темпа.* → тапы за сессию, completion.
+- `rich_start` — 215 стартовых монет вместо 120: до START хватает и на пилу, и на CART+. *Влияет ли выбор в магазине на первый тап?* → 3-секундный tap-rate, CTR.
+- `cta_copy` — только текст кнопки и эндкарда («INSTALL», «CRUSH THEM ALL!»). *Изолированный эффект копирайта CTA.* → CTR.
+
+## Как проверяется качество
+
+- **Smoke-тест** (`tools/smoke_test.mjs`): открывает собранный HTML в мобильном вьюпорте с заглушкой MRAID, жмёт SAW → START → BOMB → SAW-THROW → CTA, проверяет — нет ошибок, нет внешних запросов, монеты и способности работают, CTA вызывает `mraid.open`, FPS ≥ 50.
+- **Детерминированная симуляция** (`live/sim.js`): демо-прогон проверяется headless (`SIM.demoCheck`) — все биты рекламы наступают в нужное время; экономика тюнится числами (`tools/timeline.js`, `tools/policies.js`), а не на глаз.
+- **QA HUD**: 11 экранов HUD рендерятся с худшими строками, проверяются выход текста за панель и наложения.
+- **Независимые агенты-критики** (Sonnet): три прохода — после сцены, после арта (Gate A) и перед публикацией (Gate B). Они замеряют тайминги, сравнивают с референсом и играют билд разными «зрителями»; их отчёты и что было исправлено: [study/critique/](study/critique/), журнал решений — [study/PLAN.md](study/PLAN.md).
+- **Плейтест человеком**: правки после ручной игры в браузере (игра больше не проходится сама, стрелка апгрейда, влезание логотипа в щит) тоже записаны в журнале.
+
+## ИИ-пайплайн
+
+1. **Разбор референса** → решения: гибрид «магазин → автобой с карточками», своя айдентика, 2.5D в HTML5.
+2. **Арт**: style bible, снятая с референса (палитра, ракурс, свет), и промпт на каждый ассет (`art/prompts/`, генерируются `tools/write_prompts.py`); 19 картинок через Codex пачками, нарезка листов (сосны, обломки, камни), авто-подготовка текстур. Все основные ассеты вышли с первого раза, потому что промпты жёстко задают ориентацию: «вид сбоку, смотрит вправо, плоское дно, колёса отдельно». Исходники: `art/gen/`.
+3. **Код**: симуляция, сцена, HUD, звук — Claude Code; живое превью с hot-reload.
+4. **Проверка**: smoke-тест, QA, агенты-критики → правки → варианты → билды → плейтест.
+
+Пайплайн упакован в переиспользуемый скилл для Claude Code (`ref2playable`): новый плейабл по референсу стартует с готового шаблона, новыми остаются только механика и арт.
+
+## Ограничения и следующие шаги
+
+- Это 2.5D: нарисованные ИИ спрайты с запечённым объёмом, а не настоящее 3D, как в референсе. Порт на Unity / Luna Playworks — отдельный шаг (симуляция детерминированная и не привязана к движку).
+- ~150–300 draw calls на кадр в самые насыщенные моменты: фигуры HUD не батчатся. Первая оптимизация для слабых Android; на реальном устройстве билд пока не гонялся.
+- Нет адаптеров Pangle / TikTok / Liftoff; нет паузы звука по `document.hidden` (MRAID-видимость обработана).
+- Ссылки на стор в демо ведут на этот репозиторий — для реального теста сети подставьте `market://` / App Store.
+
+## Запуск локально
+
+```bash
+python -m http.server 8000      # из корня репозитория
+# http://localhost:8000/live/index.html?ad=1  — живая версия (рекламный режим)
+# http://localhost:8000/live/index.html       — авто-демо (attract), любое касание — играть
+python tools/build_playable.py --variant all --pages docs   # билды + демо для GitHub Pages
+node tools/smoke_test.mjs dist/default/applovin.html        # нужен Playwright
+node tools/policies.js                                       # что видят разные «зрители»
+```
+
+## Структура
+
+```
+live/        движок (gl.js, lib.js, batch.js), игра (sim.js, scene.js), звук, index.html
+tools/       build_playable.py, build.json (текстуры, стор), smoke_test.mjs, timeline.js, policies.js, perf_probe.mjs, write_prompts.py
+variants/    A/B-гипотезы
+art/         style bible, промпты, сгенерированные исходники
+study/       журнал решений (PLAN.md) и отчёты агентов-критиков
+docs/        демо для GitHub Pages, медиа, отчёт по билдам
+```
+
+*Референс — чужой рекламный креатив, в репозиторий не включён. Название, бренд и весь арт — свои; ссылки на стор — заглушки.*
