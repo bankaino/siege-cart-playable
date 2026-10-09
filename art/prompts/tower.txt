@@ -1,0 +1,5 @@
+Use case: enemy fortress tower sprite for a 2D side-view mobile game (the player destroys it).
+Subject: a chunky stone watchtower in strict SIDE VIEW (front elevation, no perspective): light grey stone block walls #c9c9c2 with subtle darker brick courses and a soft shaded right side #8f8f89, four crenellation blocks along the flat top, a dark arched wooden doorway at the bottom centre, one narrow dark arrow-slit window high up, and on the LEFT side three thick wooden timber beams with orange-brown #c27428 round beam ends sticking out diagonally upward-left like a bristling defence. Slightly tapered, about 1 : 1.8 wide to tall, flat bottom edge sitting on the ground line. Undamaged.
+Orientation: front elevation, flat bottom edge.
+Composition: one tower, centred, filling about 90% of the canvas height, margin all round.
+Constraints: no skeletons, no flag, no ground, no grass, no shadow, no text.

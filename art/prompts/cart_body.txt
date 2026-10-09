@@ -1,0 +1,5 @@
+Use case: main vehicle body sprite for a 2D side-view mobile game; wheels are separate sprites added in code, so DO NOT draw any wheels.
+Subject: a chunky wooden medieval war-cart box in strict SIDE VIEW facing RIGHT: one sturdy wooden crate wagon bed made of horizontal planks (warm wood #b86a2c with darker plank gaps), four dark iron corner brackets with round rivets, a thick dark iron band along the top and bottom edge, a short wooden drawbar stub poking out at the back (left) and a small iron hook at the front (right). The bottom edge is perfectly flat and horizontal. Wider than tall (about 2.4 : 1).
+Orientation: side view facing right, flat bottom edge, no perspective, no visible top face.
+Composition: one object, centred, filling about 85% of the canvas width, margin all round.
+Constraints: NO wheels, no axle, no archer, no saw, no ground, no shadow, no text.

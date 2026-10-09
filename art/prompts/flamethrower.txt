@@ -1,0 +1,5 @@
+Use case: a flamethrower weapon sprite mounted on the front of a war cart in a 2D side-view mobile game.
+Subject: a chunky steel flamethrower in strict SIDE VIEW pointing RIGHT: a round dark steel fuel tank with two iron straps at the back (left), a thick tube with ring segments, a wide flared nozzle at the right tip with a small orange glowing pilot inside (no flame coming out), warm copper #c27428 fittings. About 3 : 1 wide.
+Orientation: side view, pointing right, horizontal axis, no perspective.
+Composition: one weapon, centred, filling about 88% of the canvas width, margin all round.
+Constraints: no fire or flame outside the nozzle, no cart, no hands, no ground, no shadow, no text.

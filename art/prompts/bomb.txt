@@ -1,0 +1,5 @@
+Use case: thrown bomb projectile sprite, rotated in code.
+Subject: one classic round cartoon bomb: a glossy dark iron-black sphere #2b2d35 with a soft white highlight on the upper left, a small iron cap on top with a short twisted brown fuse ending in a little unlit tip. Chunky toy proportions.
+Orientation: fuse pointing up, centred.
+Composition: one bomb, centred, filling about 85% of the canvas height, margin all round.
+Constraints: no spark, no flame, no ground, no shadow, no text.

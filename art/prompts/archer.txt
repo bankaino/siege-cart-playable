@@ -1,0 +1,5 @@
+Use case: the hero character sprite standing on top of a cart in a 2D side-view mobile game.
+Subject: a stylized archer hero in strict SIDE VIEW facing RIGHT, standing upright with feet together on a flat ground line, aiming a medieval crossbow straight forward (to the right) with both arms extended: a cobalt-blue #2f66e0 pointed hood pulled up, a long blue cape with a darker inner side flowing backward to the left, brown leather jerkin #6b4426 with a gold buckle belt, dark leather trousers and boots, light skin face with a small determined eye. Chunky casual 3D-render proportions, big head, about 1 : 1.9 wide to tall including the crossbow.
+Orientation: side view facing right, feet on the bottom edge, crossbow level and horizontal.
+Composition: one character, centred, filling about 88% of the canvas height, margin all round.
+Constraints: one character only, no cart, no ground, no shadow, no enemies, no text.

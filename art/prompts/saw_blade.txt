@@ -1,0 +1,5 @@
+Use case: spinning saw-blade sprite rotated in code, so it must be a perfectly centred circle.
+Subject: one large circular saw blade seen face-on: polished steel disc #b9c2cc with a ring of 14 evenly spaced chunky triangular teeth around the rim, a darker steel inner ring, and in the centre a round orange #e8742a hub cap with a dark bolt in the middle (the orange hub reads like a little hat). Soft shading from the upper left, chunky toy proportions.
+Orientation: face-on, perfectly circular, perfectly centred, teeth evenly spaced.
+Composition: the blade including its teeth fills about 92% of the canvas height, centred, margin all round.
+Constraints: one blade only, no handle, no mount, no ground, no shadow, no text, no motion lines.

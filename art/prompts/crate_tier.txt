@@ -1,0 +1,5 @@
+Use case: a stackable wooden crate tier added on top of a war cart in a 2D side-view mobile game.
+Subject: one chunky wooden crate box in strict SIDE VIEW, 2.6 : 1 wide, built of horizontal planks in warm wood #b86a2c with darker gaps, a dark iron band along the top and bottom edge, four iron corner brackets with round rivets, and a big diagonal wooden cross brace across the face. Flat top and flat bottom edges so copies stack cleanly.
+Orientation: side view, perfectly rectangular silhouette, no perspective, no visible top face.
+Composition: one crate, centred, filling about 90% of the canvas width, margin all round.
+Constraints: one crate only, no wheels, no archer, no ground, no shadow, no text.

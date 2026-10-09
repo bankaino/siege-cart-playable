@@ -1,0 +1,4 @@
+Use case: tutorial pointer icon for a mobile game ("tap here" hint).
+Subject: a cartoon white knight-gauntlet glove hand (light steel-white with soft blue-grey shading, #ffffff lit facets, #c9d2e0 shade) with the index finger pointing straight UP, other fingers curled, short cuff at the wrist, chunky casual 3D-render look. The fingertip is at the top centre of the image.
+Composition: one hand, upright, centred horizontally, filling about 80% of the canvas height, margin all round.
+Constraints: no text, no motion lines, no shadow, no glow.

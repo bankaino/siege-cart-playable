@@ -1,0 +1,5 @@
+Use case: wheel sprite that is rotated in code, so it must be a perfectly centred circle.
+Subject: one chunky wooden cart wheel seen exactly from the SIDE (face-on, like a flat 2D circle): thick dark iron rim around a warm wood #b86a2c ring, six sturdy wooden spokes, a round steel hub in the exact centre with a dark centre bolt. Slightly beveled, toy-like, soft shading from the upper left.
+Orientation: face-on, perfectly circular and perfectly centred in the canvas, six spokes evenly spaced.
+Composition: the wheel fills about 88% of the canvas height, centred, margin all round.
+Constraints: one wheel only, no axle, no cart, no ground, no shadow, no text.

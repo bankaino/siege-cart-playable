@@ -1,0 +1,4 @@
+Use case: three stone rubble chunks for a collapsing tower.
+Subject: three separate chunky stone blocks of different shapes in one horizontal row: (1) a squarish grey stone brick chunk with a chipped corner, (2) a flat broken slab, (3) a rounded irregular boulder. Same light grey stone #c9c9c2 with soft shaded sides #8f8f89, casual 3D-render look.
+Composition: the three items in one horizontal row, each centred in its third of the canvas with very wide empty gaps (at least 25% of the canvas width) between them, nothing touching, generous margin to the canvas edges.
+Constraints: exactly three chunks, no dust, no ground, no shadows, no text.

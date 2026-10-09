@@ -5,56 +5,96 @@
     "ios": "https://apps.apple.com/app/id0000000000"
   },
   "textures": {
-    "ground_tex": [
-      512,
+    "bg_mountains": [
+      1024,
       "lossy"
     ],
-    "tree_0": [
-      176,
+    "pine_0": [
+      480,
       "alpha"
     ],
-    "tree_1": [
-      176,
+    "pine_1": [
+      480,
       "alpha"
     ],
-    "tree_2": [
-      176,
+    "pine_2": [
+      480,
       "alpha"
     ],
-    "stump": [
-      64,
+    "cart_body": [
+      560,
       "alpha"
     ],
-    "harvester_body": [
-      720,
+    "wheel": [
+      220,
       "alpha"
     ],
-    "rival_body": [
-      720,
+    "crate_tier": [
+      520,
       "alpha"
     ],
-    "trailer": [
-      340,
+    "saw_blade": [
+      220,
       "alpha"
     ],
-    "rival_trailer": [
-      340,
+    "flamethrower": [
+      300,
+      "alpha"
+    ],
+    "archer": [
+      420,
+      "alpha"
+    ],
+    "skel_body": [
+      300,
+      "alpha"
+    ],
+    "skel_leg": [
+      150,
+      "alpha"
+    ],
+    "tower": [
+      820,
+      "alpha"
+    ],
+    "bomb": [
+      120,
       "alpha"
     ],
     "coin": [
-      144,
+      120,
       "alpha"
     ],
     "hand": [
-      272,
+      260,
       "alpha"
     ],
-    "log": [
-      96,
+    "logo_shield": [
+      340,
       "alpha"
     ],
-    "mascot": [
-      620,
+    "skull": [
+      70,
+      "alpha"
+    ],
+    "bone": [
+      80,
+      "alpha"
+    ],
+    "sword": [
+      100,
+      "alpha"
+    ],
+    "rock_0": [
+      110,
+      "alpha"
+    ],
+    "rock_1": [
+      110,
+      "alpha"
+    ],
+    "rock_2": [
+      110,
       "alpha"
     ]
   }

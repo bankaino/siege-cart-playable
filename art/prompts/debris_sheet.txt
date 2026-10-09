@@ -1,0 +1,4 @@
+Use case: three small death-debris sprites for a skeleton enemy that bursts apart.
+Subject: three separate items in one horizontal row, same scale: (1) a round cartoon bone-white #ece4cc skull seen from the side facing left with dark eye sockets, (2) a single chunky cartoon bone shaped like a dog bone lying horizontal, (3) a rusty steel short sword lying horizontal with a brown leather grip.
+Composition: the three items in one horizontal row, each centred in its third of the canvas with very wide empty gaps (at least 25% of the canvas width) between them, nothing touching, generous margin to the canvas edges.
+Constraints: exactly three items, no ground, no shadows, no text.

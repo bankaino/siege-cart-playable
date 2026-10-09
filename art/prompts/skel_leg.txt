@@ -1,0 +1,5 @@
+Use case: one leg of a skeleton enemy, rotated in code around its top end to make a walk cycle.
+Subject: a single cartoon skeleton leg in SIDE VIEW hanging STRAIGHT DOWN: dark red #b32218 trouser leg covering the thigh (top third), then a bone-white #ece4cc shin bone with a round knee joint, ending in a chunky bone foot pointing LEFT. Chunky toy proportions.
+Orientation: perfectly vertical, the hip end at the top centre of the canvas, the foot at the bottom.
+Composition: one leg, centred, filling about 90% of the canvas height, margin all round; the leg is narrow so it only fills a small part of the width.
+Constraints: one leg only, no body, no ground, no shadow, no text.

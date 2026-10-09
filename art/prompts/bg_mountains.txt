@@ -1,0 +1,4 @@
+Use case: far background strip for a side-view mobile game: misty green rock cliffs and hills behind a forest, HORIZONTALLY TILEABLE.
+Subject: a wide panoramic strip of soft stylized grey-green rock cliffs and rounded hills (#6f9a8a lit, #4f7e70 shade, haze toward the bottom) with a few small dark green pine silhouettes on their ridges, atmospheric perspective: low contrast, slightly hazy so the foreground stays readable. The left and right edges must match seamlessly (the same shapes continue across the edge so the strip can repeat). The bottom edge fades to flat pale green-grey #9fc7a8 along its full width, the top part is empty sky.
+Composition: panoramic, all content in the lower 60% of the canvas, upper 40% empty sky.
+Constraints: no sun, no clouds, no foreground objects, no text.

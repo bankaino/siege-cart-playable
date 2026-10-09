@@ -1,0 +1,4 @@
+Use case: blank heraldic shield badge used as a game logo plate (text is added in code).
+Subject: one chunky heraldic shield seen face-on: a thick polished gold #e0a82a metal rim with rivets around the edge, a deep navy-blue #1f2a5a face with a soft inner gradient, a small gold gem or star ornament at the very top centre. The face area is EMPTY and calm (no emblem, no letters) so text can be placed on it. Wider than tall (about 1.4 : 1) with a flat top edge and a gently pointed bottom.
+Composition: one shield, centred, filling about 90% of the canvas width, margin all round.
+Constraints: absolutely no text, no letters, no logo, no sword emblem, no ground, no shadow.

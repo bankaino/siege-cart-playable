@@ -1,0 +1,5 @@
+Use case: upper body of a skeleton enemy for a 2D side-view mobile game; legs are separate sprites added in code, so DO NOT draw legs.
+Subject: a cartoon skeleton warrior from the waist up in strict SIDE VIEW facing LEFT (walking toward the left): a round bone-white #ece4cc skull with big dark eye sockets and a grim jaw, a short ribcage with a spine, dark red #b32218 trousers waistband at the bottom edge (cut off flat at the hip), one arm stretched forward to the left holding a rusty steel short sword pointing forward-left, a round gold #e8a62a wooden shield with a dark red boss on the other arm in front of the chest. Chunky toy proportions, big skull.
+Orientation: side view facing LEFT, bottom edge is a clean flat cut at the hips.
+Composition: one torso, centred, filling about 88% of the canvas height, margin all round.
+Constraints: no legs, no feet, no ground, no shadow, no text.

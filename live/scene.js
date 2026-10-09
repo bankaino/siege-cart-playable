@@ -2,14 +2,13 @@
 // Side view: sky → parallax (cliffs, far pines, near pines) → ground → towers → skeletons → cart rig (wheels, crates, archer, saw,
 // flamethrowers) → projectiles → FX → grade → HUD (logo, progress flags, coin pill, energy panel, cards, price bubble, hand, CTA, endcard).
 // World → screen: sx(x) = CX + (x - cart.x) * zoom; heights are measured UP from the ground line (screen y = GY - h * zoom).
-// ART HOOK: every world object is a rig of code shapes; when real art exists add its name to SPR (below) and the object uses the sprite.
+// ART: generated sprites (art/gen → live/assets) are rigged in code: wheels/saw/blades spin, legs swing, crates pop, tower squashes. Effects are shapes.
 (function () {
   const S = (window.SCENE = {}), L = LIB, W = SIM.VIEW.W, H = SIM.VIEW.H;
   const K = SIM.K, UI = SIM.UI, GY = SIM.GY, CX = SIM.CART_SX, SS = L.SS, rnd = L.rnd;
-  S.REPEAT = ['ground_tex'];
+  S.REPEAT = ['bg_mountains'];
   S.programs = () => { L.init(W, H); L.glyphs('0123456789+$×'); L.SUN = [W * 0.15, -300]; };
-  const SPR = new Set();                                                     // names with real generated art (phase 3 fills this)
-  void SPR;
+  const M = L.M;
   const FONT = '"Arial Black", "Arial Rounded MT Bold", "Segoe UI Black", sans-serif';
   const ease = (x) => 1 - (1 - x) * (1 - x), clamp = (x, a, b) => Math.max(a, Math.min(b, x)), mix = (a, b, w) => L.lerpP(a, b, w);
   const WHITE = [1, 1, 1], GOLD = [1, 0.82, 0.2], GOLD2 = [0.85, 0.55, 0.05];
@@ -18,8 +17,10 @@
   // ---------- shape helpers (screen px) ----------
   const circ = (x, y, r, c0, c1 = c0, a = 1) => L.rrect(x - r, y - r, 2 * r, 2 * r, r, c0, c1, a);
   const bar = (x0, y0, len, th, ang, col, a = 1) => L.solid(x0, y0 - th / 2, len, th, col, ang, 0, th / 2, a);          // bar starting at (x0,y0) pointing at ang
-  const coin = (x, y, r, spin, a = 1) => { const w = Math.max(0.18, Math.abs(Math.cos(spin))) * r; L.rrect(x - w, y - r, 2 * w, 2 * r, w, GOLD, GOLD2, a);
-    if (w > r * 0.45) L.rrect(x - w * 0.66, y - r * 0.66, 1.32 * w, 1.32 * r, w * 0.66, [1, 0.93, 0.5], [0.96, 0.72, 0.16], a); };
+  // sprite anchored at (x,y): h = drawn height, (ax,ay) = anchor inside the sprite (fractions), ang rotation, sx/sy squash, a alpha, tint [r,g,b,mix]
+  const put = (n, x, y, h, o = {}) => { const w = L.hsz(n, h), ax = o.ax === undefined ? 0.5 : o.ax, ay = o.ay === undefined ? 1 : o.ay;
+    L.sprite(n, 0, 0, { m: M.of(M.t(x, y), M.r(o.ang || 0), M.s(o.sx === undefined ? 1 : o.sx, o.sy === undefined ? 1 : o.sy)), w, h, pivot: [ax * w, ay * h], u: { alpha: o.a === undefined ? 1 : o.a, tint: o.tint || [1, 1, 1, 0] } }); return w; };
+  const coin = (x, y, r, spin, a = 1) => { const w = Math.max(0.2, Math.abs(Math.cos(spin))) * r; L.sprite('coin', x - w, y - r, { w: 2 * w, h: 2 * r, u: { alpha: a } }); };
   const bolt = (x, y, s, col, a = 1) => { bar(x + 4 * s, y - 15 * s, 22 * s, 9 * s, 2.2, col, a); bar(x - 3 * s, y - 2 * s, 22 * s, 9 * s, 0.9, col, a); bar(x + 1 * s, y + 3 * s, 22 * s, 9 * s, 2.2, col, a); };   // lightning zigzag
   const fmtHp = (v) => (v >= 1000 ? (Math.round(v / 100) / 10).toFixed(1) + 'K' : String(Math.max(0, Math.round(v / 10) * 10)));
 
@@ -36,41 +37,30 @@
     const hy = (h) => gyS - h * z;                                            // screen y of a height above the ground
 
     // ===== sky + parallax =====
-    L.beginBG([0.25, 0.6, 0.68, 1]);
-    L.rrect(0, 0, W, GY + 40, 0, [0.20, 0.58, 0.68], [0.70, 0.88, 0.74]);
-    L.glow(W * 0.78, GY - 330, 520, [1, 0.95, 0.7], 0.22, 2.4);
+    L.beginBG([0.23, 0.66, 0.74, 1]);
+    L.rrect(0, 0, W, GY + 40, 0, [0.23, 0.66, 0.74], [0.66, 0.86, 0.74]);
+    const MH = 860, MW = MH * 1.5, mu0 = p.x * 0.1 / MW;                                                                                   // misty cliffs (tiled, slow parallax)
+    L.solid(0, 0, W, GY - 10 - MH + 3, [0.225, 0.675, 0.751], 0, 0, 0, 1);                                                                 // flat sky above the strip = the strip's own top colour (no seam)
+    L.sprite('bg_mountains', 0, GY - 10 - MH, { w: W, h: MH, src: [mu0, 0, mu0 + W / MW, 1] });
     const layer = (f, sp, fn) => { const cam = p.x * f, i0 = Math.floor((cam - CX - 400) / sp), i1 = Math.ceil((cam + W - CX + 400) / sp); for (let i = i0; i <= i1; i++) fn(i, CX + i * sp - cam + shx * f); };
-    layer(0.12, 560, (i, x) => { const h = 300 + 160 * rnd(i, 1), w = 700 + 260 * rnd(i, 2);                                  // far cliffs
-      L.rrect(x - w / 2, GY - h * 0.9, w, h * 1.4, 130, [0.50, 0.68, 0.62], [0.38, 0.58, 0.50], 0.9);
-      L.rrect(x - w * 0.18, GY - h * 0.9, w * 0.42, h * 1.2, 90, [0.62, 0.78, 0.68], [0.50, 0.68, 0.58], 0.7); });
-    const pine = (x, base, sz, c0, c1, tx) => { L.solid(x - sz * 0.05, base - sz * 0.22, sz * 0.1, sz * 0.22, tx, 0, 0, 0, 1);
-      for (let k = 0; k < 4; k++) { const w = sz * (0.62 - k * 0.12), y0 = base - sz * (0.16 + k * 0.2) - sz * 0.2; L.rrect(x - w / 2, y0, w, sz * 0.3, w * 0.42, mix(c0, WHITE, 0.08 * (3 - k)), c1); } };
-    layer(0.3, 330, (i, x) => { if (rnd(i, 3) < 0.25) return; pine(x + 60 * rnd(i, 4), GY - 6, 230 + 70 * rnd(i, 5), [0.30, 0.55, 0.42], [0.20, 0.42, 0.32], [0.36, 0.30, 0.22]); });
-    layer(0.62, 430, (i, x) => { if (rnd(i, 6) < 0.2) return; pine(x + 90 * rnd(i, 7), GY + 6, 340 + 110 * rnd(i, 8), [0.22, 0.50, 0.26], [0.13, 0.36, 0.17], [0.34, 0.24, 0.16]); });
-    // ground: lit grass band at the horizon fading to deep green, dirt track the cart rolls on, tufts + stones that sell the speed
-    L.rrect(0, GY - 4, W, H - GY + 8, 0, [0.52, 0.70, 0.20], [0.18, 0.38, 0.10]);
+    layer(0.3, 300, (i, x) => { if (rnd(i, 3) < 0.2) return; put('pine_' + Math.floor(rnd(i, 4) * 3), x + 60 * rnd(i, 5), GY - 4, 250 + 90 * rnd(i, 6), { tint: [0.62, 0.8, 0.78, 0.5] }); });
+    layer(0.62, 520, (i, x) => { if (rnd(i, 7) < 0.35) return; put('pine_' + Math.floor(rnd(i, 8) * 3), x + 90 * rnd(i, 9), GY + 8, 290 + 80 * rnd(i, 10), { tint: [0.7, 0.86, 0.8, 0.3] }); });
+    L.rrect(0, GY - 2, W, H - GY + 6, 0, [0.55, 0.74, 0.40], [0.18, 0.38, 0.10]);
     L.rrect(0, gyS + 6, W, 120 * z, 0, [0.62, 0.55, 0.28], [0.45, 0.42, 0.20], 0.55);
     layer(1, 150, (i, x) => { const r = rnd(i, 9), y = gyS + 20 + 330 * rnd(i, 10), s = 0.6 + 0.9 * (y - gyS) / 330;
       if (r < 0.55) { for (let k = -1; k <= 1; k++) bar(x + k * 9 * s, y, 26 * s, 5 * s, -1.57 + k * 0.5, [0.14, 0.34, 0.08], 0.8); }
-      else if (r < 0.8) L.rrect(x - 16 * s, y - 10 * s, 32 * s, 20 * s, 9 * s, [0.62, 0.64, 0.58], [0.42, 0.46, 0.4], 0.9); });
+      else if (r < 0.8) put('rock_' + (i & 1 ? 0 : 2), x, y + 6 * s, 30 * s, { ay: 1, a: 0.9 }); });
     L.beginComp();
 
     // ===================== towers =====================
     ST.towers.forEach((q, i) => {
-      const w = (i ? 300 : 240), hgt = i ? 600 : 440, x = sx(q.x), a = q.alive ? 0 : GT - q.deadT, hit = q.alive ? clamp(1 - (GT - q.hitT) / 0.12, 0, 1) : 0;
-      if (x < -400 || x > W + 400) return;
-      const col = (c) => mix(c, WHITE, 0.5 * hit), jx = a > 0 && a < 0.9 ? 7 * Math.sin(a * 60) * (1 - a / 0.9) : 0;
+      const hgt = i ? 600 : 440, x = sx(q.x), a = q.alive ? 0 : GT - q.deadT, hit = q.alive ? clamp(1 - (GT - q.hitT) / 0.12, 0, 1) : 0, w = L.hsz('tower', hgt) * 0.8;
+      if (x < -500 || x > W + 500) return;
+      const jx = a > 0 && a < 0.9 ? 7 * Math.sin(a * 60) * (1 - a / 0.9) : 0;
       if (q.alive || a < 0.9) {
-        const cs = q.alive ? 1 : 1 - 0.86 * ease(a / 0.9), H0 = hgt * cs, bx = x - w * z / 2 + jx, top = hy(H0);
+        const cs = q.alive ? 1 : 1 - 0.86 * ease(a / 0.9), H0 = hgt * cs, top = hy(H0);
         L.shadow(x + 20, gyS + 8, w * z * 0.7, 26 * z, 0.4);
-        L.rrect(bx, top, w * z, H0 * z, 10 * z, col([0.78, 0.78, 0.74]), col([0.55, 0.55, 0.52]));
-        L.rrect(bx + w * z * 0.62, top, w * z * 0.38, H0 * z, 10 * z, col([0.62, 0.62, 0.6]), col([0.46, 0.46, 0.44]), 0.8);                    // shaded side
-        for (let r = 1; r * 52 < H0; r++) L.solid(bx, hy(r * 52 * cs), w * z, 3 * z, [0.38, 0.38, 0.36], 0, 0, 0, 0.5);                           // brick courses
-        for (let r = 0; r * 52 < H0; r++) for (let c = 0; c < 4; c++) L.solid(bx + (c + 0.5 * (r % 2) + 0.4) * w * z / 4.2, hy((r + 1) * 52 * cs), 3 * z, 52 * cs * z, [0.38, 0.38, 0.36], 0, 0, 0, 0.35);
-        for (let m = 0; m < 4; m++) L.rrect(bx + m * 0.26 * w * z, top - 28 * z * cs, w * z * 0.22, 36 * z * cs, 4 * z, col([0.8, 0.8, 0.76]), col([0.6, 0.6, 0.57]));   // merlons
-        L.rrect(x - 36 * z + jx, hy(110 * cs), 72 * z, 110 * cs * z, 36 * z, [0.12, 0.10, 0.10], [0.05, 0.04, 0.04]);                             // door (skeletons come out here)
-        L.rrect(x + 40 * z + jx, hy(H0 * 0.72), 34 * z, 70 * cs * z, 16 * z, [0.14, 0.12, 0.12], [0.07, 0.06, 0.06]);
-        for (let b = 0; b < 3; b++) { const by = hy(H0 * (0.55 + 0.13 * b)), bl = (70 + 24 * b) * z; bar(bx + 4 * z, by, bl, 22 * z, 3.14 + 0.18 + b * 0.1, col([0.74, 0.42, 0.16])); circ(bx - bl + 14 * z, by - 0.17 * bl, 11 * z, col([0.92, 0.6, 0.28]), col([0.7, 0.4, 0.14])); }   // timber beams
+        put('tower', x + jx, gyS, hgt * z, { ax: 0.6, ay: 1, sy: cs, tint: [1, 1, 1, 0.5 * hit] });
         const f = q.hp / q.hpMax;
         if (q.alive && f < 0.7) { bar(x - 10 * z, hy(H0 * 0.8), 90 * z, 6 * z, 1.3, [0.12, 0.12, 0.1], 0.8); bar(x + 20 * z, hy(H0 * 0.55), 80 * z, 6 * z, 1.9, [0.12, 0.12, 0.1], 0.8); }
         if (q.alive && f < 0.35) { bar(x + 60 * z, hy(H0 * 0.9), 110 * z, 7 * z, 1.7, [0.1, 0.1, 0.08], 0.85); bar(x - 70 * z, hy(H0 * 0.4), 100 * z, 7 * z, 1.2, [0.1, 0.1, 0.08], 0.85); }
@@ -78,92 +68,56 @@
           L.rrect(x - bw / 2, by, bw, 24, 12, [0.14, 0.14, 0.14], [0.06, 0.06, 0.06], 0.85); L.rrect(x - bw / 2 + 3, by + 3, Math.max(8, (bw - 6) * f), 18, 9, [1, 0.78, 0.2], [0.92, 0.5, 0.06]);
           if (x > 100 && x < W - 100) L.label('twhp' + i, fmtHp(q.hp), x, by - 34, { size: 50, font: FONT, col: '#ffffff', out: '#2a1a00', al: 0.5 }); }
       }
-      if (!q.alive) { for (let r = 0; r < 9; r++) { const rx = x + (r - 4) * 30 * z + 14 * Math.sin(r * 5), rh = (22 + 26 * rnd(r, i)) * clamp(a / 0.5, 0, 1) * z;                // rubble pile
-        L.rrect(rx - 24 * z, gyS - rh, 48 * z, rh + 6 * z, 10 * z, [0.72, 0.72, 0.68], [0.5, 0.5, 0.47]); } }
+      if (!q.alive) for (let r = 0; r < 8; r++) put('rock_' + (r % 3), x + (r - 3.5) * 40 * z + 10 * Math.sin(r * 5), gyS + 4 * z, (40 + 34 * rnd(r, i)) * clamp(a / 0.5, 0, 1) * z, { ay: 1, ang: 0.3 * Math.sin(r * 3) });   // rubble pile
     });
 
     // ===================== skeletons =====================
     const front = SIM.frontOf(p);
     for (const e of ST.enemies) { if (e.dead) continue; const x = sx(e.x), fl = clamp(1 - (GT - e.hitT) / 0.1, 0, 1);
-      if (x < -120 || x > W + 140) continue;
-      const age = GT - e.t0, emerge = ease(clamp(age / 0.35, 0, 1)), melee = e.x - front < K.SK_REACH + 6, ph = GT * 9 + e.id * 1.7, sc = z * (0.95 + 0.1 * rnd(e.id, 2)), helm = e.hpMax > K.SK_HP * 1.2;
-      const c = (col) => mix(col, WHITE, 0.55 * fl), BONE = c([0.93, 0.9, 0.78]), SHADE = c([0.74, 0.68, 0.54]), RED = c([0.78, 0.14, 0.12]), hipH = 70 * sc, sw = melee ? 0 : Math.sin(ph) * 0.55;
-      const bob = melee ? 0 : Math.abs(Math.sin(ph)) * 5 * sc, gx = x, base = gyS + (1 - emerge) * 40 * sc, hz = base - hipH - bob;
-      L.shadow(gx, gyS + 4, 34 * sc, 9 * sc, 0.4 * emerge);
-      for (const sg of [-1, 1]) bar(gx + sg * 8 * sc, hz, 68 * sc, 12 * sc, 1.5708 + sg * sw, sg < 0 ? SHADE : BONE);                                                  // legs
-      L.rrect(gx - 24 * sc, hz - 26 * sc, 48 * sc, 36 * sc, 8 * sc, RED, mix(RED, [0, 0, 0], 0.3));                                                                    // red trousers
-      L.rrect(gx - 22 * sc, hz - 92 * sc, 44 * sc, 70 * sc, 12 * sc, BONE, SHADE);                                                                                      // ribcage
-      for (let r = 0; r < 3; r++) L.solid(gx - 17 * sc, hz - (74 - r * 15) * sc, 34 * sc, 4 * sc, [0.35, 0.3, 0.22], 0, 0, 0, 0.75);
-      circ(gx - 2 * sc, hz - 112 * sc, 22 * sc, BONE, SHADE);                                                                                                           // skull
-      circ(gx - 11 * sc, hz - 114 * sc, 5.5 * sc, [0.1, 0.06, 0.05]); circ(gx + 6 * sc, hz - 114 * sc, 5.5 * sc, [0.1, 0.06, 0.05]);
-      L.rrect(gx - 14 * sc, hz - 98 * sc, 24 * sc, 8 * sc, 3 * sc, [0.25, 0.2, 0.15], [0.15, 0.1, 0.08]);
-      if (helm) L.rrect(gx - 25 * sc, hz - 138 * sc, 50 * sc, 26 * sc, 12 * sc, c([0.55, 0.57, 0.6]), c([0.33, 0.35, 0.4]));
-      const swing = melee ? Math.sin(GT * 11 + e.id) * 0.9 : -0.2 + 0.25 * Math.sin(ph + 1);                                                                           // sword arm toward the cart (left)
-      bar(gx - 14 * sc, hz - 78 * sc, 40 * sc, 10 * sc, 3.14 - 0.5 - swing, BONE);
-      bar(gx - 14 * sc - Math.cos(0.5 + swing) * 38 * sc, hz - 78 * sc - Math.sin(0.5 + swing) * 38 * sc, 66 * sc, 9 * sc, 3.14 - 1.0 - swing, c([0.72, 0.74, 0.8]));
-      if (e.id % 2 === 0) { circ(gx - 26 * sc, hz - 62 * sc, 20 * sc, c([0.95, 0.7, 0.2]), c([0.7, 0.4, 0.08])); circ(gx - 26 * sc, hz - 62 * sc, 7 * sc, c([0.55, 0.3, 0.06])); }
-      if (e.hp < e.hpMax) { const bw = 70 * sc; L.rrect(gx - bw / 2, base - 175 * sc, bw, 11, 5, [0.1, 0.1, 0.1], [0.05, 0.05, 0.05], 0.85); L.rrect(gx - bw / 2 + 2, base - 175 * sc + 2, Math.max(5, (bw - 4) * e.hp / e.hpMax), 7, 3, [1, 0.72, 0.15], [0.92, 0.5, 0.06]); }
+      if (x < -250 || x > W + 250) continue;
+      const age = GT - e.t0, emerge = ease(clamp(age / 0.35, 0, 1)), melee = e.x - front < K.SK_REACH + 6, ph = GT * 9 + e.id * 1.7, sc = z * (0.95 + 0.1 * rnd(e.id, 2)), tough = e.hpMax > K.SK_HP * 1.2;
+      const tint = fl > 0.02 ? [1, 1, 1, 0.65 * fl] : tough ? [0.6, 0.66, 0.95, 0.3] : [1, 1, 1, 0], sw = melee ? 0 : Math.sin(ph) * 0.5, bob = melee ? 0 : Math.abs(Math.sin(ph)) * 5 * sc;
+      const gx = x + 70 * sc, base = gyS + (1 - emerge) * 60 * sc, legH = 92 * sc, hz = base - (legH - 4 * sc) - bob;
+      L.shadow(gx - 10 * sc, gyS + 4, 44 * sc, 10 * sc, 0.4 * emerge);
+      for (const sg of [1, -1]) put('skel_leg', gx + sg * 6 * sc, hz, legH, { ax: 0.5, ay: 0.02, ang: sg * sw, tint: sg > 0 ? [0.7, 0.7, 0.75, 0.25 + 0.4 * fl] : tint });                      // legs swing around the hip
+      put('skel_body', gx, hz + 6 * sc, 138 * sc, { ax: 0.76, ay: 1, ang: melee ? 0.1 * Math.sin(GT * 11 + e.id) : 0.03 * Math.sin(ph * 2), tint });                                     // torso: skull, shield, sword
+      if (e.hp < e.hpMax) { const bw = 74 * sc, bx = gx - 45 * sc - bw / 2, by = base - 250 * sc; L.rrect(bx, by, bw, 11, 5, [0.1, 0.1, 0.1], [0.05, 0.05, 0.05], 0.85); L.rrect(bx + 2, by + 2, Math.max(5, (bw - 4) * e.hp / e.hpMax), 7, 3, [1, 0.72, 0.15], [0.92, 0.5, 0.06]); }
     }
 
     // ===================== cart rig (also reused big on the endcard) =====================
     let flashHurt = 0, upAge = 99, buyAge = 99, aimX = null, boltAge = 9;
     for (const e of ST.ev) { const a = GT - e.t; if (e.k === 'hurt') flashHurt = Math.max(flashHurt, clamp(1 - a / 0.15, 0, 1)); if (e.k === 'upgrade') upAge = a; if (e.k === 'buy' && e.id === 'saw') buyAge = a; if (e.k === 'bolt') { aimX = e.tx; boltAge = a; } }
     const drawCart = (ox, base, sc, o) => {
-      const tier = o.tier, rot = o.dist / 60, bob = o.moving ? Math.abs(Math.sin(o.dist * 0.05)) * 3 * sc : 0, y0 = base - bob, crates = tier >= 2 ? 3 : 1;
-      const c = (col) => mix(col, [1, 0.25, 0.2], 0.5 * o.hurt);
-      L.shadow(ox, base + 4 * sc, 190 * sc, 22 * sc, 0.45);
-      for (const [wx, wr] of [[-150, 36], [-72, 60], [52, 60]]) { const cx0 = ox + wx * sc, cy0 = y0 - wr * sc, rr = wr * sc;                                    // wheels
-        circ(cx0, cy0, rr, [0.46, 0.27, 0.12], [0.30, 0.17, 0.07]); circ(cx0, cy0, rr * 0.82, [0.66, 0.42, 0.2], [0.5, 0.32, 0.14]);
-        for (let s = 0; s < 6; s++) bar(cx0, cy0, rr * 0.8, rr * 0.13, rot * 60 / wr + s * 1.047, [0.38, 0.22, 0.1]);
-        circ(cx0, cy0, rr * 0.22, [0.7, 0.78, 0.82], [0.4, 0.46, 0.5]); circ(cx0, cy0, rr * 0.08, [0.2, 0.22, 0.24]); }
-      bar(ox - 150 * sc, y0 - 36 * sc, 215 * sc, 8 * sc, 0, [0.24, 0.16, 0.1]);
-      let top = 70 * sc;                                                                                                                                              // crates (tier 2: two more pop up with an overshoot)
-      for (let k = 0; k < crates; k++) { const h = (k === 0 ? 110 : 96) * sc, qk = clamp((o.upAge - 0.12 * k) / 0.35, 0, 1), pop = k === 0 || o.upAge >= 99 ? 1 : ease(qk) * (1 + 0.18 * Math.sin(qk * 3.14)), hh = h * pop;
-        if (hh < 2) continue; const bx = ox - 150 * sc + (k ? 14 * sc : 0), bw = (k ? 246 : 270) * sc, by = y0 - top - hh;
-        L.rrect(bx, by, bw, hh, 8 * sc, c([0.70, 0.42, 0.18]), c([0.50, 0.28, 0.11]));
-        for (let pl = 1; pl < 3; pl++) L.solid(bx, by + hh * pl / 3, bw, 4 * sc, [0.22, 0.12, 0.05], 0, 0, 0, 0.7);
-        L.solid(bx, by, 14 * sc, hh, [0.42, 0.24, 0.1], 0, 0, 0, 0.9); L.solid(bx + bw - 14 * sc, by, 14 * sc, hh, [0.42, 0.24, 0.1], 0, 0, 0, 0.9);
-        bar(bx + 6 * sc, by + 6 * sc, Math.hypot(bw - 12 * sc, hh - 12 * sc), 8 * sc, Math.atan2(hh - 12 * sc, bw - 12 * sc), [0.3, 0.17, 0.07], 0.55);
-        for (const [rx, ry] of [[14, 14], [bw / sc - 14, 14], [14, hh / sc - 14], [bw / sc - 14, hh / sc - 14]]) circ(bx + rx * sc, by + ry * sc, 4.5 * sc, [0.75, 0.78, 0.8], [0.45, 0.48, 0.5]);
-        if (tier >= 2 && k >= 1) L.solid(bx, by + hh - 8 * sc, bw, 8 * sc, [0.55, 0.58, 0.62], 0, 0, 0, 0.85);
-        top += hh; }
-      if (o.saw) { const sp = o.sawBuy < 99 ? ease(clamp(o.sawBuy / 0.25, 0, 1)) : 1, sxp = ox + 150 * sc + (1 - sp) * 60 * sc, syp = y0 - 96 * sc, r = 62 * sc * (0.6 + 0.4 * sp), ang = GT * (o.grind ? 22 : 7);   // saw on the nose
-        circ(sxp, syp, r, [0.82, 0.86, 0.9], [0.55, 0.6, 0.66]);
-        for (let g = 0; g < 12; g++) bar(sxp + Math.cos(ang + g * 0.5236) * r * 0.9, syp + Math.sin(ang + g * 0.5236) * r * 0.9, r * 0.28, r * 0.2, ang + g * 0.5236 + 0.6, [0.7, 0.74, 0.8]);
-        circ(sxp, syp, r * 0.62, [0.7, 0.74, 0.8], [0.45, 0.5, 0.56]); circ(sxp, syp, r * 0.34, [0.95, 0.55, 0.15], [0.7, 0.32, 0.06]); circ(sxp, syp, r * 0.1, [0.25, 0.25, 0.28]);
-        bar(sxp - r * 0.4, syp, r * 0.55, 10 * sc, 3.1, [0.3, 0.3, 0.34]); }
-      if (tier >= 2) for (const nh of [150, 250]) { const ny = y0 - nh * sc; bar(ox + 120 * sc, ny, 50 * sc, 18 * sc, 0, [0.34, 0.36, 0.4]); circ(ox + 172 * sc, ny, 11 * sc, [0.18, 0.18, 0.2], [0.08, 0.08, 0.1]); circ(ox + 120 * sc, ny, 16 * sc, [0.9, 0.5, 0.15], [0.6, 0.3, 0.08]); }
-      // archer: blue hood, fluttering cape, crossbow aimed at the current target
-      const ax = ox - 10 * sc, ab = y0 - top, lean = o.recoil * 5 * sc, aim = o.aim;
-      L.shadow(ax, ab + 2 * sc, 40 * sc, 8 * sc, 0.3);
-      bar(ax - 14 * sc, ab - 70 * sc, 60 * sc, 26 * sc, 3.14 + 0.05, [0.25, 0.5, 0.95], 0.9); bar(ax - 16 * sc, ab - 100 * sc, 74 * sc, 24 * sc, 3.14 - 0.15 + 0.12 * Math.sin(GT * 7), [0.18, 0.4, 0.88], 0.9);
-      for (const sg of [-1, 1]) bar(ax + sg * 11 * sc, ab - 62 * sc, 62 * sc, 20 * sc, 1.5708, [0.32, 0.22, 0.16]);
-      L.rrect(ax - 24 * sc - lean, ab - 128 * sc, 48 * sc, 74 * sc, 14 * sc, [0.42, 0.28, 0.2], [0.28, 0.18, 0.13]); L.rrect(ax - 24 * sc - lean, ab - 92 * sc, 48 * sc, 10 * sc, 3 * sc, [0.9, 0.7, 0.2], [0.7, 0.5, 0.1]);
-      circ(ax - lean, ab - 148 * sc, 24 * sc, [0.35, 0.52, 0.98], [0.15, 0.3, 0.8]); circ(ax + 8 * sc - lean, ab - 144 * sc, 13 * sc, [0.9, 0.72, 0.58], [0.75, 0.55, 0.42]);
-      const hx = ax + 12 * sc - lean, hyy = ab - 110 * sc; bar(hx, hyy, 74 * sc, 12 * sc, aim, [0.34, 0.22, 0.14]);
-      const tipx = hx + Math.cos(aim) * 56 * sc, tipy = hyy + Math.sin(aim) * 56 * sc; bar(tipx, tipy, 34 * sc, 9 * sc, aim + 1.5708, [0.2, 0.2, 0.22]); bar(tipx, tipy, 34 * sc, 9 * sc, aim - 1.5708, [0.2, 0.2, 0.22]);
-      bar(ax - 6 * sc - lean, ab - 112 * sc, 40 * sc, 11 * sc, aim + 0.2, [0.9, 0.72, 0.58]);
-      if (o.hpBar) { const bh = 150 * sc, bxp = ox - 190 * sc, f = clamp(p.hp / p.hpMax, 0, 1); L.rrect(bxp, y0 - 80 * sc - bh, 14, bh, 7, [0.1, 0.1, 0.1], [0.05, 0.05, 0.05], 0.85);    // hp bar left of the cart
+      const tier = o.tier, bob = o.moving ? Math.abs(Math.sin(o.dist * 0.05)) * 3 * sc : 0, y0 = base - bob, tint = o.hurt > 0.02 ? [1, 0.35, 0.3, 0.55 * o.hurt] : [1, 1, 1, 0];
+      L.shadow(ox, base + 4 * sc, 240 * sc, 24 * sc, 0.45);
+      put('cart_body', ox, y0 - 62 * sc, 115 * sc, { tint });                                                                                                          // wagon bed (wheels sit in front of its lower edge)
+      for (const [wx, wr] of [[-168, 46], [-96, 75], [84, 75]]) put('wheel', ox + wx * sc, y0 - wr * sc, 2 * wr * sc, { ay: 0.5, ang: o.dist / wr, tint });              // wheels roll with the distance
+      let top = 177 * sc;                                                                                                                                              // tier 2 stacks two more crates, popping up with an overshoot
+      if (tier >= 2) for (let k = 1; k <= 2; k++) { const qk = clamp((o.upAge - 0.12 * k) / 0.35, 0, 1), pop = o.upAge >= 99 ? 1 : ease(qk) * (1 + 0.18 * Math.sin(qk * 3.14)); if (pop < 0.02) continue;
+        put('crate_tier', ox, y0 - top, 107 * sc, { sy: pop, tint }); top += 107 * sc * pop; }
+      if (o.saw) { const sp = o.sawBuy < 99 ? ease(clamp(o.sawBuy / 0.25, 0, 1)) : 1, r = 72 * sc * (0.6 + 0.4 * sp);                                                  // saw bolted on the nose, spins faster in contact
+        put('saw_blade', ox + 190 * sc + (1 - sp) * 70 * sc, y0 - 100 * sc, 2 * r, { ay: 0.5, ang: GT * (o.grind ? 22 : 7), tint }); }
+      if (tier >= 2) for (const nh of [230, 338]) put('flamethrower', ox + 150 * sc, y0 - nh * sc, 62 * sc, { ax: 0.15, ay: 0.4, tint });
+      L.shadow(ox - 30 * sc, y0 - top + 2 * sc, 50 * sc, 9 * sc, 0.3);
+      put('archer', ox - 30 * sc - o.recoil * 7 * sc, y0 - top, 235 * sc, { ang: o.aim * 0.25 - 0.02, tint });                                                         // hero: recoils on every bolt
+      if (o.hpBar) { const bh = 150 * sc, bxp = ox - 225 * sc, f = clamp(p.hp / p.hpMax, 0, 1); L.rrect(bxp, y0 - 80 * sc - bh, 14, bh, 7, [0.1, 0.1, 0.1], [0.05, 0.05, 0.05], 0.85);   // hp bar left of the cart
         L.rrect(bxp + 2, y0 - 80 * sc - (bh - 4) * f - 2, 10, Math.max(6, (bh - 4) * f), 5, [0.4, 1, 0.3], [0.2, 0.7, 0.15]); }
     };
-    const aim0 = aimX !== null && boltAge < 0.5 ? clamp(0.3 * (1 - (aimX - p.x) / 900), 0.02, 0.3) : 0.02;
+    const aim0 = aimX !== null && boltAge < 0.5 ? clamp(0.3 * (1 - (aimX - p.x) / 900), 0.02, 0.3) : 0.02, muzzleH = p.tier >= 2 ? 505 : 290;
     const grind = ST.enemies.some((e) => !e.dead && e.x - front < K.SK_REACH + 12);
-    drawCart(sx(p.x), gyS, z, { tier: p.tier, saw: p.saw, dist: p.x, moving: p.v > 20, hurt: flashHurt, upAge, sawBuy: buyAge, grind: grind && p.saw, recoil: clamp(1 - boltAge / 0.15, 0, 1), aim: aim0, hpBar: ST.phase === 'battle' && ST.end < 0 });
+    if (!(ST.end >= 0 && GT - ST.end > 0.4)) drawCart(sx(p.x), gyS, z, { tier: p.tier, saw: p.saw, dist: p.x, moving: p.v > 20, hurt: flashHurt, upAge, sawBuy: buyAge, grind: grind && p.saw, recoil: clamp(1 - boltAge / 0.15, 0, 1), aim: aim0, hpBar: ST.phase === 'battle' && ST.end < 0 });
 
     // ===================== rolling saw blades, bombs in flight =====================
-    for (const b of ST.blades) { const x = sx(b.x), r = 46 * z, y = gyS - r - 4; circ(x, y, r, [0.85, 0.88, 0.92], [0.55, 0.6, 0.66]);
-      for (let g = 0; g < 10; g++) bar(x + Math.cos(GT * -16 + g * 0.628) * r * 0.9, y + Math.sin(GT * -16 + g * 0.628) * r * 0.9, r * 0.3, r * 0.2, GT * -16 + g * 0.628 + 0.6, [0.72, 0.76, 0.82]);
-      circ(x, y, r * 0.5, [0.95, 0.55, 0.15], [0.7, 0.32, 0.06]); L.glow(x, y, r * 2, [1, 0.7, 0.3], 0.35, 2.4);
-      for (let j = 0; j < 5; j++) L.star(x - (20 + j * 26) * z, gyS - (4 + 14 * rnd(j, Math.floor(GT * 20))) * z, 14 * z, [1, 0.8, 0.4], 0.8 - j * 0.15); }
-    for (const e of ST.ev) { if (e.k !== 'throw') continue; const a = GT - e.t; if (a < 0 || a > e.flight) continue; const u = a / e.flight, bx = sx(e.x0) + (sx(e.x) - sx(e.x0)) * u, by = gyS - (260 * (1 - u) + 520 * Math.sin(Math.PI * u) - 10) * z;
-      circ(bx, by, 24 * z, [0.28, 0.28, 0.32], [0.08, 0.08, 0.1]); circ(bx - 7 * z, by - 8 * z, 7 * z, [0.6, 0.6, 0.66], [0.4, 0.4, 0.46], 0.8);
-      bar(bx + 6 * z, by - 22 * z, 16 * z, 4 * z, -1.2 + GT * 9, [0.4, 0.3, 0.2]); L.star(bx + 10 * z, by - 36 * z, 14 * z, [1, 0.8, 0.3], 0.9); }
+    for (const b of ST.blades) { const x = sx(b.x), r = 62 * z, y = gyS - r - 2; put('saw_blade', x, y, 2 * r, { ay: 0.5, ang: GT * -14 }); L.glow(x, y, r * 2, [1, 0.7, 0.3], 0.3, 2.4);
+      for (let j = 0; j < 5; j++) L.star(x - (30 + j * 26) * z, gyS - (4 + 14 * rnd(j, Math.floor(GT * 20))) * z, 14 * z, [1, 0.8, 0.4], 0.8 - j * 0.15); }
+    for (const e of ST.ev) { if (e.k !== 'throw') continue; const a = GT - e.t; if (a < 0 || a > e.flight) continue; const u = a / e.flight, bx = sx(e.x0) + (sx(e.x) - sx(e.x0)) * u, sh0 = muzzleH - 30, by = gyS - (sh0 * (1 - u) + 520 * Math.sin(Math.PI * u) - 10) * z;
+      put('bomb', bx, by, 64 * z, { ay: 0.55, ang: GT * 5 }); L.star(bx + 10 * z, by - 40 * z, 14 * z, [1, 0.8, 0.3], 0.9); }
 
     // ===================== event FX (world) =====================
     for (const e of ST.ev) { const a = GT - e.t; if (a < 0) continue;
-      if (e.k === 'bolt' && a < 0.16) { const x0 = sx(e.x), y0 = hy(e.tower ? 250 : 200), x1 = sx(e.tx), u = a / 0.16, y1 = hy(e.tower ? 230 : 90);
+      if (e.k === 'bolt' && a < 0.16) { const x0 = sx(e.x), y0 = hy(muzzleH - 20), x1 = sx(e.tx), u = a / 0.16, y1 = hy(e.tower ? 230 : 130);
         const sxb = x0 + (x1 - x0) * Math.max(0, u - 0.35), syb = y0 + (y1 - y0) * Math.max(0, u - 0.35), exb = x0 + (x1 - x0) * u, eyb = y0 + (y1 - y0) * u;
-        bar(sxb, syb, Math.hypot(exb - sxb, eyb - syb), 5 * z, Math.atan2(eyb - syb, exb - sxb), [1, 0.95, 0.7]); if (a < 0.05) L.glow(x0 + 70 * z, hy(190), 50 * z, [1, 0.9, 0.5], 0.7, 2.4);
+        bar(sxb, syb, Math.hypot(exb - sxb, eyb - syb), 5 * z, Math.atan2(eyb - syb, exb - sxb), [1, 0.95, 0.7]); if (a < 0.05) L.glow(x0 + 40 * z, hy(muzzleH - 20), 50 * z, [1, 0.9, 0.5], 0.7, 2.4);
         if (u > 0.9) L.star(x1, y1, 22 * z, [1, 0.9, 0.5], 0.9); }
       if (e.k === 'sawhit' && a < 0.25) { const x = sx(e.x), q = a / 0.25; for (let j = 0; j < 6; j++) { const an = -Math.PI / 2 + (rnd(j, e.t * 9) - 0.5) * 2.6, d = (30 + 80 * rnd(j, 3)) * ease(q) * z;
         L.star(x - 20 * z + Math.cos(an) * d, hy(60) + Math.sin(an) * d + 120 * q * q * z, 12 * z, [1, 0.8, 0.4], 1 - q); } if (a < 0.08) L.glow(x - 20 * z, hy(70), 70 * z, [1, 0.7, 0.3], 0.6, 2.4); }
@@ -171,7 +125,7 @@
         if (a < 0.4) for (let j = 0; j < 4; j++) { const q = a / 0.4, an = rnd(j, e.id) * 6.28; L.puff(x + Math.cos(an) * 40 * q * z, hy(60 + 40 * q) + Math.sin(an) * 20 * q * z, (16 + 24 * q) * z, [0.86, 0.82, 0.7], 0.6 * (1 - q), e.id + j); }
         for (let j = 0; j < 7; j++) { const vx = (rnd(j, e.id) - 0.5) * 520 * g, vy = (260 + 380 * rnd(j, e.id + 1)) * g, tt = Math.min(a, 1.0), h = Math.max(0, 70 + vy * tt - 1300 * tt * tt), xx = x + vx * tt * z;
           const al = 1 - SS(0.7, 1.1, a), ang = tt * (6 + 8 * rnd(j, 5)) * (j % 2 ? 1 : -1);
-          if (j === 0) circ(xx, hy(h), 20 * z, [0.93, 0.9, 0.78], [0.74, 0.68, 0.54], al); else bar(xx - Math.cos(ang) * 16 * z, hy(h) - Math.sin(ang) * 16 * z, 34 * z, 8 * z, ang, j % 3 ? [0.93, 0.9, 0.78] : [0.78, 0.14, 0.12], al); } }
+          put(j === 0 ? 'skull' : j % 3 === 0 ? 'sword' : 'bone', xx, hy(h), (j === 0 ? 44 : j % 3 === 0 ? 22 : 20) * z, { ay: 0.5, ang, a: al }); } }
       if (e.k === 'boom' && a < 1.0) { const x = sx(e.x), q = a / 1.0, r = e.r * z; if (a < 0.2) L.glow(x, hy(70), r * 1.6, [1, 0.6, 0.2], 1.3 * (1 - a / 0.2), 2.2);
         L.ring(x, hy(30), r * 1.2 * ease(Math.min(1, a / 0.35)), r * 0.35 * ease(Math.min(1, a / 0.35)), [1, 0.8, 0.5], 0.9 * (1 - Math.min(1, a / 0.4)), 0.16);
         for (let j = 0; j < 8; j++) { const an = j / 8 * 6.283 + 0.4, d = (40 + 150 * ease(Math.min(1, a / 0.6))) * z; L.puff(x + Math.cos(an) * d, hy(60) + Math.sin(an) * d * 0.7 - 80 * q * z, (36 + 50 * q) * z, j % 3 ? [0.32, 0.31, 0.3] : [1, 0.55, 0.15], 0.85 * (1 - q), j + 7); }
@@ -180,17 +134,17 @@
         for (let j = 0; j < 5; j++) L.puff(x - 20 * z + j * 14 * z, hy(80 + 40 * q), (24 + 40 * q) * z, [0.7, 0.7, 0.66], 0.6 * (1 - q), j + 3); }
       if (e.k === 'towerdown' && a < 2.4) { const x = sx(e.x), q = a / 2.4;
         for (let j = 0; j < 14; j++) { const vx = (rnd(j, 21) - 0.5) * 760 + 60, vy = 300 + 620 * rnd(j, 22), tt = Math.min(a, 1.4), h = Math.max(0, 200 + vy * tt - 1200 * tt * tt), al = 1 - SS(1.7, 2.4, a), sw = (40 + 50 * rnd(j, 23)) * z;
-          const cx = x + vx * tt * z, cy = hy(h); L.rrect(cx - sw / 2, cy - sw / 2, sw, sw * 0.8, 6 * z, [0.8, 0.8, 0.76], [0.52, 0.52, 0.48], al); }
+          const cx = x + vx * tt * z, cy = hy(h); put('rock_' + (j % 3), cx, cy, sw * 0.9, { ay: 0.5, ang: tt * (4 + 6 * rnd(j, 24)) * (j % 2 ? 1 : -1), a: al }); }
         for (let j = 0; j < 12; j++) { const an = j / 12 * 6.283 + 0.3, d = (60 + 340 * ease(Math.min(1, a / 1.2))) * z; L.puff(x + Math.cos(an) * d, hy(50) + Math.sin(an) * d * 0.35 - 110 * q * z, (60 + 80 * q) * z, [0.78, 0.74, 0.66], 0.7 * (1 - q), j + 31); }
         if (a < 0.3) L.glow(x, hy(200), 420 * z, [1, 0.85, 0.5], 0.9 * (1 - a / 0.3), 2.2); }
       if (e.k === 'upgrade' && a < 1.5) { const x = sx(p.x), q = a / 1.5, pil = (1 - SS(0.3, 1, q)) * SS(0, 0.08, a);
         for (let j = 0; j < 6; j++) L.glow(x, hy(100 + j * 90 * (0.4 + q)), (150 - j * 10) * z, [1, 0.88, 0.45], 0.55 * pil * (1 - j / 7), 2.2);
         for (let j = 0; j < 10; j++) { const an = j / 10 * 6.283 + 0.4, d = (80 + 240 * ease(Math.min(1, a / 0.5))) * z; L.puff(x + Math.cos(an) * d, hy(40) + Math.sin(an) * d * 0.3, (30 + 36 * q) * z, [0.86, 0.72, 0.46], 0.55 * (1 - q), j + 3); }
         for (let j = 0; j < 8; j++) { const an = j / 8 * 6.283 + e.t, d = (100 + 220 * ease(q)) * z; L.star(x + Math.cos(an) * d, hy(220) + Math.sin(an) * d * 0.7, 26 * z, [1, 0.9, 0.5], 1 - q); } }
-      if (e.k === 'buy' && e.id === 'saw' && a < 0.5) { const x = sx(p.x + 190), q = a / 0.5; for (let j = 0; j < 8; j++) { const an = j / 8 * 6.283, d = (30 + 90 * ease(q)) * z; L.star(x + Math.cos(an) * d, hy(100) + Math.sin(an) * d, 14 * z, [1, 0.85, 0.5], 1 - q); } }
+      if (e.k === 'buy' && e.id === 'saw' && a < 0.5) { const x = sx(p.x + 270), q = a / 0.5; for (let j = 0; j < 8; j++) { const an = j / 8 * 6.283, d = (30 + 90 * ease(q)) * z; L.star(x + Math.cos(an) * d, hy(100) + Math.sin(an) * d, 14 * z, [1, 0.85, 0.5], 1 - q); } }
       if (e.k === 'spawn' && a < 0.5) { const x = sx(e.x), q = a / 0.5; L.puff(x, hy(40 + 30 * q), (30 + 40 * q) * z, [0.4, 0.38, 0.36], 0.6 * (1 - q), 5 + Math.floor(e.t * 3)); } }
     if (p.tier >= 2 && ST.fireUntil > GT && ST.end < 0) { const fa = 1 - SS(ST.fireUntil - 0.3, ST.fireUntil, GT);                                  // flames: two cones
-      for (const nh of [150, 250]) { const x0 = sx(p.x) + 172 * z, y0 = hy(nh);
+      for (const nh of [230, 338]) { const x0 = sx(p.x) + 280 * z, y0 = hy(nh);
         for (let j = 0; j < 22; j++) { const qq = (GT * 2.6 + j / 22 + nh * 0.01) % 1, d = (20 + K.FIRE_RANGE * qq) * z, sp = (rnd(j, nh) - 0.5) * qq * 150 * z, r = (18 + 62 * qq) * z;
           L.puff(x0 + d, y0 + sp + 30 * qq * z, r, qq < 0.6 ? [1, 0.55 - 0.3 * qq, 0.1] : [0.3, 0.22, 0.2], 0.8 * (1 - qq) * fa, j + nh); if (qq < 0.7) L.glow(x0 + d, y0 + sp, r * 1.3, [1, 0.5, 0.1], 0.35 * (1 - qq) * fa, 2.4); }
         L.glow(x0, y0, 70 * z, [1, 0.8, 0.4], 0.8 * fa, 2.2); } }
@@ -207,8 +161,8 @@
         const sx0 = ox + (rnd(j, e.t * 7) - 0.5) * 120, sy0 = oy - 70 * Math.sin(Math.min(1, qj * 4) * 1.57), u = Math.pow(clamp((qj - 0.25) / 0.75, 0, 1), 1.6);
         coin(sx0 + (hudC[0] - sx0) * u, sy0 + (hudC[1] - sy0) * u - 90 * Math.sin(Math.PI * u) * (1 - u), 26 - 8 * u, GT * 10 + j); } }
     const shown = Math.max(0, Math.round(ST.money - inFlight)); let mb = 0; for (const e of ST.ev) { const a = GT - e.t - 0.7; if (e.coin && a >= 0 && a < 0.12) mb = Math.max(mb, 1 - a / 0.12); }
-    { const lx = 36, ly = 50; L.rrect(lx, ly, 250, 150, 30, [0.95, 0.76, 0.28], [0.7, 0.45, 0.1]); L.rrect(lx + 9, ly + 9, 232, 132, 24, [0.18, 0.22, 0.4], [0.08, 0.1, 0.24]);                // logo shield
-      L.label('logo1', 'SIEGE', lx + 125, ly + 52, { size: 46, font: FONT, col: '#ffe9a8', out: '#1a1030', al: 0.5 }); L.label('logo2', 'CART', lx + 125, ly + 100, { size: 52, font: FONT, col: '#ffffff', out: '#1a1030', al: 0.5 }); L.uiBox('logoBox', lx, ly, 250, 150, 2); }
+    { const lx = 30, ly = 38, lw = 270, lh = lw * 898 / 1484; L.sprite('logo_shield', lx, ly, { w: lw, h: lh });                                                                  // logo plate + text
+      L.label('logo1', 'SIEGE', lx + lw / 2, ly + lh * 0.36, { size: 46, font: FONT, col: '#ffe9a8', out: '#1a1030', al: 0.5 }); L.label('logo2', 'CART', lx + lw / 2, ly + lh * 0.66, { size: 52, font: FONT, col: '#ffffff', out: '#1a1030', al: 0.5 }); L.uiBox('logoBox', lx, ly, lw, lh, 2); }
     { const bx = 330, bw = W - 330 - 40, by = 92, lit = [0, 2, 5][Math.min(2, ST.towersDown)];                                                                         // progress bar + 5 flags
       L.rrect(bx, by, bw, 36, 18, [0.32, 0.34, 0.36], [0.14, 0.15, 0.17]); L.rrect(bx + 4, by + 4, Math.max(10, (bw - 8) * ST.prog), 28, 14, [0.55, 0.95, 0.3], [0.25, 0.7, 0.12]);
       for (let f = 0; f < 5; f++) { const fx = bx + bw * (f + 0.8) / 5.2 - 8, col = f < lit ? [0.92, 0.2, 0.18] : [0.62, 0.64, 0.68];
@@ -223,9 +177,9 @@
       const c0 = locked ? [0.42, 0.44, 0.46] : on ? base : [0.56, 0.58, 0.6], c1 = locked ? [0.28, 0.3, 0.32] : on ? mix(base, [0, 0, 0], 0.35) : [0.38, 0.4, 0.42];
       L.rrect(x - 5, y - 5, w + 10, h + 10, 26, [0.22, 0.24, 0.26], [0.1, 0.1, 0.12]); L.rrect(x, y, w, h, 22, c0, c1); if (hot) L.glow(x + w / 2, y + h / 2, w * 0.9, [1, 1, 0.8], 0.2 + 0.1 * Math.sin(t * 8), 2.4);
       S.hit.push({ id: 'tap_' + id, x: r.x, y: r.y, w: r.w, h: r.h }); L.uiBox('card_' + id, r.x, r.y, r.w, r.h, 2); return { x, y, w, h }; };
-    const icon = (id, cx, cy, s, a = 1) => { if (id === 'bomb') { circ(cx, cy + 6 * s, 34 * s, [0.3, 0.3, 0.34], [0.08, 0.08, 0.1], a); circ(cx - 10 * s, cy - 4 * s, 9 * s, [0.65, 0.65, 0.7], [0.45, 0.45, 0.5], 0.8 * a); bar(cx + 12 * s, cy - 28 * s, 22 * s, 6 * s, -0.9, [0.6, 0.45, 0.25], a); L.star(cx + 28 * s, cy - 42 * s, 14 * s, [1, 0.8, 0.3], a); }
-      else if (id === 'sawt') { circ(cx, cy, 36 * s, [0.8, 0.84, 0.88], [0.5, 0.55, 0.62], a); for (let k = 0; k < 10; k++) bar(cx + Math.cos(k * 0.628 + t) * 33 * s, cy + Math.sin(k * 0.628 + t) * 33 * s, 12 * s, 9 * s, k * 0.628 + t + 0.6, [0.7, 0.74, 0.8], a); circ(cx, cy, 15 * s, [0.95, 0.55, 0.15], [0.7, 0.32, 0.06], a); }
-      else if (id === 'fire') { circ(cx, cy + 8 * s, 28 * s, [1, 0.45, 0.1], [0.85, 0.15, 0.05], a); circ(cx, cy + 14 * s, 16 * s, [1, 0.88, 0.4], [1, 0.6, 0.15], a); bar(cx - 14 * s, cy - 8 * s, 40 * s, 18 * s, -1.4, [1, 0.5, 0.1], a * 0.9); bar(cx + 8 * s, cy - 6 * s, 34 * s, 14 * s, -1.9, [1, 0.6, 0.15], a * 0.9); } };
+    const icon = (id, cx, cy, s, a = 1) => { if (id === 'bomb') put('bomb', cx, cy + 4 * s, 84 * s, { ay: 0.5, a, ang: 0.1 * Math.sin(t * 3) });
+      else if (id === 'sawt') put('saw_blade', cx, cy, 80 * s, { ay: 0.5, a, ang: t * 2 });
+      else if (id === 'fire') put('flamethrower', cx, cy, 52 * s, { ay: 0.5, a, ang: -0.3 }); };
     const chip = (r, label, enough, ico) => { const cw = 150, cx = r.x + r.w / 2 - cw / 2, cy = r.y + r.h + 10; L.rrect(cx, cy, cw, 44, 22, [0.08, 0.1, 0.14], [0.03, 0.04, 0.06], 0.85);
       if (ico === 'bolt') bolt(cx + 34, cy + 22, 0.9, enough ? [0.45, 0.8, 1] : [0.6, 0.62, 0.66]); else coin(cx + 34, cy + 22, 16, 0);
       L.label('chip_' + label + ico, label, cx + 64, cy + 23, { size: 34, font: FONT, col: enough ? '#ffffff' : '#c8ccd2', out: '#0a1020' }); };
@@ -273,9 +227,9 @@
     if (ST.end < 0 && ST.hint) { const r = UI[ST.hint], bn = 1 + 0.04 * Math.sin(t * 6), txt = BAN[ST.hint], tw = L.labelW('tut', txt, { size: Math.round(62 * bn), font: FONT });
       if (!calloutOn) { L.rrect(W / 2 - tw / 2 - 40, 330 - 56, tw + 80, 112, 56, [0.05, 0.08, 0.14], [0.02, 0.03, 0.06], 0.72); L.uiBox('tutbox', W / 2 - tw / 2 - 40, 330 - 56, tw + 80, 112, 4);
         L.label('tut', txt, W / 2, 330, { size: Math.round(62 * bn), font: FONT, col: '#ffffff', out: '#102a40', al: 0.5 }); }
-      const hx = r.x + r.w * 0.58, hyy = r.y + r.h * 0.5 + 18 * Math.sin(t * 7), tapq = (t * 1.6) % 1, down = tapq > 0.55, rr = 40 + 50 * (1 - Math.min(1, tapq * 1.5)), hs = down ? 0.92 : 1;
-      if (down) L.ring(hx, hyy, rr, rr, WHITE, 0.5, 0.1);
-      bar(hx + 8, hyy + 70 * hs, 78 * hs, 44 * hs, -1.9, [0.88, 0.9, 0.94]); circ(hx, hyy, 30 * hs, [0.96, 0.97, 1], [0.7, 0.74, 0.8]); circ(hx - 6, hyy - 8, 10 * hs, WHITE, WHITE, 0.6); }
+      const hx = r.x + r.w * 0.5 + 6, hyy = r.y + r.h * 0.5 - 6 + 8 * Math.sin(t * 7), tapq = (t * 1.1) % 1, down = tapq > 0.6, hs = down ? 0.9 : 1, rr = 30 + 60 * ease(Math.min(1, tapq * 1.2));
+      if (down) L.ring(hx, hyy, rr, rr, WHITE, 0.55 * (1 - Math.min(1, (tapq - 0.6) / 0.4)), 0.1);
+      put('hand', hx, hyy, 150 * hs, { ax: 0.5, ay: 0.02, ang: -0.45 }); }                                                                                      // fingertip on the card, hand tilts away from the price
     if (ST.end < 0) { const bw = 330, bh = 104, bx = W - bw - 36, by = H - bh - 44, pul = 1 + 0.03 * Math.sin(t * 5);                                              // persistent CTA bar
       L.rrect(24, by - 18, W - 48, bh + 36, 30, [0.06, 0.08, 0.14], [0.03, 0.04, 0.08], 0.74); L.uiBox('ctabar', 24, by - 18, W - 48, bh + 36, 4);
       L.label('brand', 'SIEGE CART', 70, by + bh / 2, { size: 50, font: FONT, col: '#ffd84a', out: '#2a1a00' });
@@ -289,7 +243,7 @@
       if (s1 > 0.01) { L.label('head', head, W / 2, 310 + oy, { size: Math.round(72 * s1), font: FONT, col: '#ffffff', out: '#102a40', al: 0.5 });
         L.label('logo', 'SIEGE CART', W / 2, 430 + oy, { size: Math.round(124 * s1), font: FONT, col: '#ffd84a', out: '#3a2000', al: 0.5 });
         L.label('tag', 'Smash towers. Upgrade your cart!', W / 2, 540 + oy, { size: 52, font: FONT, col: '#ffffff', out: '#102a40', al: 0.5, a: k }); }
-      const sm = pop(0.35); if (sm > 0.01) { L.glow(W / 2 - 40, 880 + oy, 340, [1, 0.85, 0.4], 0.25, 2.2); drawCart(W / 2 - 40, 1120 + oy + (1 - sm) * 200, sm, { tier: 2, saw: true, dist: t * 90, moving: true, hurt: 0, upAge: 99, sawBuy: 99, grind: false, recoil: 0, aim: -0.1 + 0.03 * Math.sin(t * 3), hpBar: false }); }
+      const sm = pop(0.35); if (sm > 0.01) { L.glow(W / 2 - 40, 880 + oy, 340, [1, 0.85, 0.4], 0.25, 2.2); drawCart(W / 2 - 20, 1180 + oy + (1 - sm) * 200, 0.9 * sm, { tier: 2, saw: true, dist: t * 90, moving: true, hurt: 0, upAge: 99, sawBuy: 99, grind: false, recoil: 0, aim: -0.1 + 0.03 * Math.sin(t * 3), hpBar: false }); }
       const s2 = pop(0.45); if (s2 > 0.01) L.label('stat', ST.kills + ' SKELETONS SMASHED · ' + ST.earned + ' COINS', W / 2, 1230 + oy, { size: Math.round(42 * s2), font: FONT, col: '#bff58a', out: '#173307', al: 0.5 });
       const s3 = pop(0.7), pul = 1 + 0.045 * Math.sin(t * 6), bw = 640 * s3 * pul, bh = 170 * s3 * pul, bx = W / 2 - bw / 2, by = 1420 + oy - bh / 2;
       if (s3 > 0.01) { L.glow(W / 2, 1420 + oy, 420, [1, 0.8, 0.3], 0.3, 2.2); L.rrect(bx, by + 12, bw, bh, bh / 2, [0.55, 0.30, 0.02], [0.45, 0.22, 0.0]); L.rrect(bx, by, bw, bh, bh / 2, [1.0, 0.86, 0.30], [0.98, 0.58, 0.10]); L.uiBox('endcta', bx, by, bw, bh, 2);

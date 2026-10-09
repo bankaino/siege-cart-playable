@@ -1,0 +1,4 @@
+Use case: background pine tree sprites for a side-view mobile game (soft rounded 3D-render look like the pines in Image 1).
+Subject: three separate stylized pine trees in side view standing on a flat ground line, each made of 3-4 stacked rounded cone tiers in saturated greens (#2e7d3a lit, #1b5a2a shade) with a short brown trunk stub at the bottom. Tree 1 medium, tree 2 taller and narrower, tree 3 shorter and rounder; all bases on the same horizontal line.
+Composition: the three items in one horizontal row, each centred in its third of the canvas with very wide empty gaps (at least 25% of the canvas width) between them, nothing touching, generous margin to the canvas edges.
+Constraints: exactly three trees, no ground, no grass, no shadows, no other objects.

@@ -19,7 +19,7 @@
     END_AFTER_WIN: 2.0, END_AFTER_LOSE: 1.6, END_MAX: 28, END_NO_INPUT: 12, END_IDLE: 10,
   };
   // towers: x in world px, hp, wave size, skeleton hp multiplier
-  const TOWERS = [{ x: 1700, hp: 2000, n: 7, m: 1 }, { x: 2500, hp: 4200, n: 10, m: 1.35 }];
+  const TOWERS = [{ x: 1700, hp: 2000, n: 7, m: 1 }, { x: 2500, hp: 3400, n: 9, m: 1.35 }];
 
   // ---- tap targets in view px (laid out from H, never from 1920): shop cards + START, battle cards + energy panel, upgrade bubble ----
   const R = (x, y, w, h) => ({ x, y, w, h });
@@ -34,7 +34,7 @@
   const TAP_PAD = 14;
   const hitUI = (ids, x, y) => ids.find((id) => { const r = UI[id]; return x >= r.x - TAP_PAD && x <= r.x + r.w + TAP_PAD && y >= r.y - TAP_PAD && y <= r.y + r.h + TAP_PAD; });
   const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
-  const frontOf = (p) => p.x + (p.saw ? 220 : 120);                                  // contact point of the cart (saw tip when fitted)
+  const frontOf = (p) => p.x + (p.saw ? 270 : 190);                                  // contact point of the cart (saw tip when fitted)
 
   function create() {
     return { t: 0, steps: 0, wt0: 0, ev: [], freeze: 0, phase: 'shop', goT: -9, cam: 0, zoom: 1,
@@ -72,7 +72,7 @@
 
   function doUpgrade(S, auto) {
     const pay = Math.min(S.money, K.UP_COST); S.money -= pay; S.upDone = 1; S.upT = S.t; S.freeze = 0.08;
-    const p = S.p; p.tier = 2; p.flames = true; p.hpMax += K.TIER2_HP; p.hp = p.hpMax;
+    const p = S.p; p.tier = 2; p.flames = true; p.hpMax += K.TIER2_HP; p.hp = p.hpMax; S.en = Math.max(S.en, K.COST_FIRE);   // the upgrade pays out: FIRE is ready right away
     push(S, { k: 'upgrade', x: p.x, auto: !!auto, cost: pay });
   }
   function useAbility(S, id) {
@@ -84,8 +84,8 @@
       const cand = inRange(S).filter((e) => e.x > p.x + 250); let bx = null, best = 0;
       for (const e of cand) { const n = cand.filter((o) => Math.abs(o.x - e.x) < K.BOMB_R).length; if (n > best) { best = n; bx = e.x; } }
       const q = tw(S); if (bx === null) bx = q.alive && q.x - p.x < K.RANGE + 300 ? q.x - 70 : p.x + 560;
-      S.pend.push({ at: S.t + K.BOMB_FLIGHT, x: bx }); push(S, { k: 'throw', id, x: bx, x0: p.x + 40, flight: K.BOMB_FLIGHT });
-    } else if (id === 'sawt') { S.blades.push({ x: p.x + 170, hit: [], t0: S.t }); push(S, { k: 'sawt', x: p.x + 170 }); }
+      S.pend.push({ at: S.t + K.BOMB_FLIGHT, x: bx }); push(S, { k: 'throw', id, x: bx, x0: p.x + 60, flight: K.BOMB_FLIGHT });
+    } else if (id === 'sawt') { S.blades.push({ x: p.x + 300, hit: [], t0: S.t }); push(S, { k: 'sawt', x: p.x + 300 }); }
     else { S.fireUntil = S.t + K.FIRE_TIME; push(S, { k: 'fire', x: p.x }); }
   }
   function tap(S, x, y) {
@@ -163,10 +163,10 @@
         const w = tw(S); if (w.alive && b.x >= w.x - 100) { b.dead = 1; push(S, { k: 'sawimpact', x: w.x - 100 }); hurtTower(S, w, K.SAWT_TOWER, 'sawt'); }
         if (b.x > p.x + 1900) b.dead = 1; }
       S.blades = S.blades.filter((b) => !b.dead);
-      if (t < S.fireUntil && S.end < 0) { const x0 = p.x + 130, x1 = x0 + K.FIRE_RANGE; S.fireAcc += DT;
+      if (t < S.fireUntil && S.end < 0) { const x0 = p.x + 280, x1 = x0 + K.FIRE_RANGE; S.fireAcc += DT;
         for (const e of S.enemies) if (!e.dead && e.x > x0 && e.x < x1) hurtEnemyQuiet(S, e, K.FIRE_DPS * DT);
-        const w = tw(S); if (w.alive && w.x - 110 < x1) { const tick = S.fireAcc >= 0.3; hurtTower(S, w, K.FIRE_DPS * DT, 'fire', !tick); }
-        if (S.fireAcc >= 0.3) S.fireAcc = 0; }
+        const w = tw(S); if (w.alive && w.x - 110 < x1) { S.fireSum = (S.fireSum || 0) + K.FIRE_DPS * DT; hurtTower(S, w, K.FIRE_DPS * DT, 'fire', true); }
+        if (S.fireAcc >= 0.3) { if (S.fireSum > 0 && w.alive) push(S, { k: 'dmg', x: w.x - 40, y: 1, v: Math.round(S.fireSum), why: 'fire' }); S.fireAcc = 0; S.fireSum = 0; } }
       // ---- upgrade offer: bubble over the cart; auto-taken after a moment so a passive viewer still sees the transformation ----
       if (S.up && !S.upDone && t - S.up.t0 > K.UP_AUTO) doUpgrade(S, true);
       if (S.up && !S.up.said && t >= S.up.t0) { S.up.said = 1; push(S, { k: 'upoffer', x: p.x, cost: K.UP_COST }); }

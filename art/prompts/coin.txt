@@ -1,0 +1,5 @@
+Use case: collectible coin icon for a mobile game HUD and flying coin effect.
+Subject: one shiny gold coin seen exactly face-on: round, thick beveled rim in #ffcf33 with a darker #c98a0b inner edge, and an embossed simple star symbol in the centre, soft highlight on the upper left, chunky casual 3D-render look.
+Orientation: face-on, perfectly circular, perfectly centred.
+Composition: the coin fills about 90% of the canvas height, centred, margin all round.
+Constraints: one coin only, no text or numbers, no stack, no ground, no shadow, no glow.
