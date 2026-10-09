@@ -227,7 +227,7 @@
     for (const e of ST.ev) { if (e.k !== 'autotap') continue; const a = GT - e.t, r = UI[e.id]; if (a < 0 || a > 0.5) continue; const hx = r.x + r.w * 0.66, hyy = r.y + r.h * 0.34, pr = a < 0.15 ? 0.9 : 1;
       L.ring(hx, hyy, 30 + 90 * (a / 0.5), 30 + 90 * (a / 0.5), WHITE, 0.6 * (1 - a / 0.5), 0.1); put('hand', hx, hyy, 135 * pr, { ax: 0.5, ay: 0.02, ang: -0.75, a: 1 - SS(0.35, 0.5, a) }); }   // ghost tap: the cart casts for an idle viewer
     // ---- tutorial: banner + hand pointing at the hinted card ----
-    const BAN = { saw: 'TAP TO BUILD YOUR CART!', start: 'READY? TAP START!', bomb: 'TAP TO ATTACK!', sawt: 'TAP THE SAW!', fire: 'FIRE! TAP NOW!', bubble: 'UPGRADE YOUR CART!' };
+    const BAN = { saw: 'TAP TO BUILD YOUR CART!', cart: 'STRONGER CART!', start: 'READY? TAP START!', bomb: 'TAP TO ATTACK!', sawt: 'TAP THE SAW!', fire: 'FIRE! TAP NOW!', bubble: 'UPGRADE YOUR CART!' };
     if (ST.end < 0 && ST.hint) { const r = UI[ST.hint], bn = 1 + 0.04 * Math.sin(t * 6), txt = BAN[ST.hint], tw = L.labelW('tut', txt, { size: Math.round(62 * bn), font: FONT });
       if (!calloutOn) { L.rrect(W / 2 - tw / 2 - 40, 330 - 56, tw + 80, 112, 56, [0.05, 0.08, 0.14], [0.02, 0.03, 0.06], 0.72); L.uiBox('tutbox', W / 2 - tw / 2 - 40, 330 - 56, tw + 80, 112, 4);
         L.label('tut', txt, W / 2, 330, { size: Math.round(62 * bn), font: FONT, col: '#ffffff', out: '#102a40', al: 0.5 }); }

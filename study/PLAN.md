@@ -81,7 +81,7 @@ Card frames, bars, numbers, fire/explosion/sparks = code.
       (see `<S>/template/prompts` as examples) → art/jobs.json → `python <S>/scripts/gen_batch.py art/jobs.json`
       (background) → slice sheets → one contact sheet, reject wrong camera at once → stills + Sonnet critic (critic-brief.md).
 - [x] 4. FEEL (Gate B): apply critic top fixes (max 2 rounds), 60 fps on 390×844, `verify.sh all` green.
-- [ ] 5. VARIANTS + DELIVERY: variants/ (short_loop: tower 1 only, fast energy; power_fantasy: FIRE from start;
+- [x] 5. VARIANTS + DELIVERY: variants/ (short_loop: tower 1 only, fast energy; power_fantasy: FIRE from start;
       tight_timebox: END_MAX 20) → `python tools/build_playable.py --variant all` → dist/*/report.md.
 - [ ] 6. PUBLISH (ask the user before pushing): .gitignore (study/ref, frames, art/raw, art/logs, dist except docs),
       README case study (decisions → vacancy bullets, timings, sizes, fps, A/B hypotheses, what differs from the
@@ -132,4 +132,9 @@ Card frames, bars, numbers, fire/explosion/sparks = code.
   Results: demo wins at 16.8 s (tower 1 9.5, upgrade 11.0, FIRE 12.9, tower 2 14.8); idle viewer after SAW+START: tower 1 + upgrade + FIRE before endcard at 13 s;
   fully passive: endcard 15.0 s after tower 1, upgrade, FIRE. `verify.sh all` = VERIFY OK, 0.50 MB per network (Meta limit 2 MB), fps 61.
   NOT done (nice-to-have for phase 5/polish): tile a real ground texture (ground_tex is not generated), starting-hook variants, Gate B critic after variants exist.
+- 2026-10-09 phase 5 DONE (Sonnet 5.5): stale Timber Rush variants deleted; 3 hypotheses written from the Gate A critic (all keys exist in SIM.K, each passes demoCheck):
+  `fast_energy` (EN_RATE 1.4, COST_FIRE 5, UP_AUTO 2.0 → wow 1 at 8.4 s, endcard 15.0 s), `rich_start` (START_MONEY 215, UP_COST 230 → demo also buys CART+, hint 'cart'
+  added to the shop sequence, endcard 17.5 s), `danger` (SK_DPS 85, HP 300+300, SK_REACH 40 → HP bar drains, endcard 17.4 s). Default: wow 1 at 9.5 s, endcard 16.8 s.
+  `python tools/build_playable.py --variant all --pages docs` → dist/<variant>/<network>.html|zip + report.md and the Pages previews in docs/ (index.html = default,
+  fast_energy.html, rich_start.html, danger.html). All 4 × 6 networks ≈ 0.50 MB (google zip 0.32 MB; limits 5 MB, Meta 2 MB). verify.sh all = VERIFY OK, fps 60–61.
 

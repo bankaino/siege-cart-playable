@@ -111,7 +111,7 @@
 
   function hintOf(S) {
     if (S.end >= 0 || S.winT > 0 || S.loseT > 0) return null;
-    if (S.phase === 'shop') return S.bought.saw ? 'start' : 'saw';
+    if (S.phase === 'shop') return !S.bought.saw ? 'saw' : !S.bought.cart && S.money >= K.COST_CART ? 'cart' : 'start';
     const ok = (c) => S.en >= c - 1e-6;
     if (S.up && S.t >= S.up.t0 && !S.upDone) return 'bubble';
     if (S.p.tier >= 2 && !S.used.fire && ok(K.COST_FIRE) && S.t - S.upT > K.FIRE_DELAY) return 'fire';
@@ -208,7 +208,7 @@
     const inp = { left: 0, right: 0, up: 0, down: 0, jump: 0, act: 0, click: 0, press: 0, px: W / 2, py: H / 2 };
     let id = S.hint; if (S.end >= 0 || t < 1.0) return inp;
     if (id) { const r = UI[id]; inp.px = r.x + r.w / 2; inp.py = r.y + r.h / 2;
-      if (t - S.hintT > K.DEMO_DELAY && (id === 'start' || id === 'saw' || id === 'bubble' ? (id !== 'bubble' || S.money >= K.UP_COST) : usable(S, id))) inp.click = 1; }
+      if (t - S.hintT > K.DEMO_DELAY && (id === 'start' || id === 'saw' || id === 'cart' || id === 'bubble' ? (id !== 'bubble' || S.money >= K.UP_COST) : usable(S, id))) inp.click = 1; }
     else if (S.phase === 'battle' && t - S.lastIn > 0.9) {                             // spare energy: keep fighting like a player would
       const pick = S.p.tier >= 2 && !S.used.fire ? (S.en >= K.COST_FIRE && usable(S, 'fire') ? 'fire' : null) : (S.p.tier >= 2 && S.en >= K.COST_FIRE && usable(S, 'fire')) ? 'fire' : S.en >= K.COST_SAWT && usable(S, 'sawt') ? 'sawt' : S.en >= K.COST_BOMB + 3 && usable(S, 'bomb') ? 'bomb' : null;
       if (pick) { const r = UI[pick]; inp.px = r.x + r.w / 2; inp.py = r.y + r.h / 2; inp.click = 1; } }
