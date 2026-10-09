@@ -144,4 +144,9 @@ Card frames, bars, numbers, fire/explosion/sparks = code.
   template leftovers removed (art/gen + live/assets stale names, art/prompts/example, placeholders, resolved jobs), store links → the repo URL (demo), README case study,
   `tools/perf_probe.mjs` (draw calls 150–300/frame at the busiest beats → listed as a known gap). `verify.sh all` = OK, 0.50 MB, 60–61 fps.
   PHASE 6 STATUS: everything except the push is done. Waiting for the user's go: public repo name `siege-cart-playable` (bankaino), Pages from /docs, no LICENSE added (user's call).
+- 2026-10-09 user playtest (in the browser) → changes: (1) game must NOT win by itself: auto-cast (`AUTO_IDLE`) and auto-upgrade (`UP_AUTO`) disabled (1e9); rebalanced
+  (HP 300+300, SK_DPS 80, SAW_DPS 260, BOLT 80, tower 1 wave 11 @0.6 s) → `node tools/policies.js`: no taps = lose ~10.8 s, SAW+START only = lose ~8.8 s, fast/average
+  tapper wins (minHP ~290/300), 2.5 s reaction wins barely, 4 s reaction loses; attract demo still wins at 16.9 s (all 4 variants keep the pattern). Wreck FX + red tint on defeat,
+  lose endcard shows the real (tier-1) cart under "SO CLOSE!". (2) upgrade bubble arrow was a green chevron → white double chevron with outline; hand now points from below the
+  bubble so it never covers the price. (3) logo text now auto-fits the shield face (`fit`). Also: flamethrower nozzles appear with their crate during the transformation.
 

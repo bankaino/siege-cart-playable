@@ -11,16 +11,16 @@
   const HINT = 'tap SAW · START · tap cards to fight · upgrade the cart';
   const K = {
     START_MONEY: 120, COST_SAW: 95, COST_CART: 100, COST_ENERGY: 10, CART_HP: 200, ENERGY_ADD: 0.3,
-    HP: 400, TIER2_HP: 400, SPD: 250, ACC: 700, STOP: 640, WAKE: 1300, RANGE: 900,
+    HP: 300, TIER2_HP: 300, SPD: 250, ACC: 700, STOP: 640, WAKE: 1300, RANGE: 900,
     EN_MAX: 10, EN_RATE: 1.0, COST_BOMB: 2, COST_SAWT: 4, COST_FIRE: 7,
-    FIRE_CD: 0.55, BOLT: 120, BOMB: 600, BOMB_R: 200, BOMB_FLIGHT: 0.6, SAWT: 700, SAWT_TOWER: 1100, SAWT_SPD: 700, FIRE_TIME: 2.6, FIRE_DPS: 1500, FIRE_RANGE: 520,
-    SAW_DPS: 700, SK_HP: 360, SK_SPD: 120, SK_DPS: 28, SK_REACH: 30, SPAWN_GAP: 0.8, KILL_COIN: 15, TOWER_COIN: 200,
-    UP_COST: 250, UP_AUTO: 2.8, SHOP_AUTO: 3.2, HAND_IDLE: 2.5, DEMO_DELAY: 0.6,
+    FIRE_CD: 0.55, BOLT: 80, BOMB: 600, BOMB_R: 200, BOMB_FLIGHT: 0.6, SAWT: 700, SAWT_TOWER: 1100, SAWT_SPD: 700, FIRE_TIME: 2.6, FIRE_DPS: 1500, FIRE_RANGE: 520,
+    SAW_DPS: 260, SK_HP: 360, SK_SPD: 120, SK_DPS: 80, SK_REACH: 30, SPAWN_GAP: 0.8, KILL_COIN: 15, TOWER_COIN: 200,
+    UP_COST: 250, UP_AUTO: 1e9, SHOP_AUTO: 3.2, HAND_IDLE: 2.5, DEMO_DELAY: 0.6,
     END_AFTER_WIN: 2.0, END_AFTER_LOSE: 1.6, END_MAX: 28, END_NO_INPUT: 15, END_IDLE: 12,
-    SHOP_MAX: 7, END_ABS: 26, END_HOLD_AFTER_UP: 3.5, COMBAT_FIRST: 0, EN_START: 1.0, AUTO_IDLE: 3.5, AUTO_GAP: 2.4, FIRE_DELAY: 1.3,
+    SHOP_MAX: 7, END_ABS: 26, END_HOLD_AFTER_UP: 3.5, COMBAT_FIRST: 0, EN_START: 1.0, AUTO_IDLE: 1e9, AUTO_GAP: 2.4, FIRE_DELAY: 1.3,
   };
   // towers: x in world px, hp, wave size, skeleton hp multiplier
-  const TOWERS = [{ x: 1500, hp: 2000, n: 7, m: 1, wake: 1300, gap: 0.8 }, { x: 2300, hp: 3400, n: 10, m: 1.35, wake: 1000, gap: 0.45 }];
+  const TOWERS = [{ x: 1500, hp: 2000, n: 11, m: 1, wake: 1300, gap: 0.6 }, { x: 2300, hp: 3400, n: 10, m: 1.35, wake: 1000, gap: 0.45 }];
 
   // ---- tap targets in view px (laid out from H, never from 1920): shop cards + START, battle cards + energy panel, upgrade bubble ----
   const R = (x, y, w, h) => ({ x, y, w, h });
