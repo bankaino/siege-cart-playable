@@ -83,7 +83,7 @@ Card frames, bars, numbers, fire/explosion/sparks = code.
 - [x] 4. FEEL (Gate B): apply critic top fixes (max 2 rounds), 60 fps on 390×844, `verify.sh all` green.
 - [x] 5. VARIANTS + DELIVERY: variants/ (short_loop: tower 1 only, fast energy; power_fantasy: FIRE from start;
       tight_timebox: END_MAX 20) → `python tools/build_playable.py --variant all` → dist/*/report.md.
-- [ ] 6. PUBLISH (ask the user before pushing): .gitignore (study/ref, frames, art/raw, art/logs, dist except docs),
+- [x] 6. PUBLISH (ask the user before pushing): .gitignore (study/ref, frames, art/raw, art/logs, dist except docs),
       README case study (decisions → vacancy bullets, timings, sizes, fps, A/B hypotheses, what differs from the
       reference), author `Artem <208152625+bankaino@users.noreply.github.com>` set per repo, public repo + Pages (/docs).
 
@@ -149,4 +149,4 @@ Card frames, bars, numbers, fire/explosion/sparks = code.
   tapper wins (minHP ~290/300), 2.5 s reaction wins barely, 4 s reaction loses; attract demo still wins at 16.9 s (all 4 variants keep the pattern). Wreck FX + red tint on defeat,
   lose endcard shows the real (tier-1) cart under "SO CLOSE!". (2) upgrade bubble arrow was a green chevron → white double chevron with outline; hand now points from below the
   bubble so it never covers the price. (3) logo text now auto-fits the shield face (`fit`). Also: flamethrower nozzles appear with their crate during the transformation.
-
+- 2026-10-09 phase 6 DONE: user said «публикуй» → public repo https://github.com/bankaino/siege-cart-playable (main), Pages from /docs → https://bankaino.github.io/siege-cart-playable/ (all 5 builds HTTP 200, ~0.5 MB). Topics added; no LICENSE (user's call); reference frames never tracked.

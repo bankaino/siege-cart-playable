@@ -2,7 +2,7 @@
 
 A 17-second, one-finger **playable ad** for a fictional casual game: build a war cart, roll out, tap energy cards, topple two skeleton towers, watch the cart transform, hit the store button. Built end-to-end with AI tools as a portfolio case for **playable-ads / creative-automation** work.
 
-**Play it:** `docs/index.html` (GitHub Pages: control build) · A/B builds: `combat_first.html`, `fast_energy.html`, `rich_start.html`, `cta_copy.html`.
+**Play it (best on a phone, or a mobile-size window):** https://bankaino.github.io/siege-cart-playable/ (control build) · A/B builds: [combat_first](https://bankaino.github.io/siege-cart-playable/combat_first.html) · [fast_energy](https://bankaino.github.io/siege-cart-playable/fast_energy.html) · [rich_start](https://bankaino.github.io/siege-cart-playable/rich_start.html) · [cta_copy](https://bankaino.github.io/siege-cart-playable/cta_copy.html).
 Single-file builds for **AppLovin · Unity Ads · ironSource · Mintegral · Google (zip) · Meta** come from `python tools/build_playable.py --variant all` (`dist/<variant>/…`, gitignored).
 
 | | |
