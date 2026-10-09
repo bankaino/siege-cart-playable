@@ -92,6 +92,16 @@ Constraints: exactly three trees, no ground, no grass, no shadows, no other obje
 Subject: a wide panoramic strip of soft stylized grey-green rock cliffs and rounded hills (#6f9a8a lit, #4f7e70 shade, haze toward the bottom) with a few small dark green pine silhouettes on their ridges, atmospheric perspective: low contrast, slightly hazy so the foreground stays readable. The left and right edges must match seamlessly (the same shapes continue across the edge so the strip can repeat). The bottom edge fades to flat pale green-grey #9fc7a8 along its full width, the top part is empty sky.
 Composition: panoramic, all content in the lower 60% of the canvas, upper 40% empty sky.
 Constraints: no sun, no clouds, no foreground objects, no text."""),
+'bolt': (None, """Use case: energy icon for a mobile game HUD.
+Subject: one chunky glossy lightning bolt symbol: a bright cyan-white #dff6ff core with a saturated electric-blue #2f8cff edge and soft inner gradient, thick rounded zig-zag shape (classic energy bolt), soft highlight on the upper left, casual 3D-render look.
+Orientation: upright, centred.
+Composition: one bolt, centred, filling about 88% of the canvas height, margin all round.
+Constraints: one bolt only, no text, no circle behind it, no glow, no ground, no shadow."""),
+'padlock': (None, """Use case: locked-card icon for a mobile game HUD.
+Subject: one chunky cartoon padlock seen face-on: a rounded gold #e8a62a body with a darker #b87a14 shade, a thick steel #b9c2cc shackle arc on top, a small dark keyhole in the centre, soft highlight on the upper left, casual 3D-render look.
+Orientation: upright, closed, centred.
+Composition: one padlock, centred, filling about 88% of the canvas height, margin all round.
+Constraints: one padlock only, no text, no chain, no ground, no shadow, no glow."""),
 }
 
 os.makedirs('art/prompts', exist_ok=True)

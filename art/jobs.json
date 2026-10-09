@@ -77,5 +77,13 @@
   "name": "bg_mountains",
   "prompt": "art/prompts/bg_mountains.txt",
   "size": "1536x1024"
+ },
+ {
+  "name": "bolt",
+  "prompt": "art/prompts/bolt.txt"
+ },
+ {
+  "name": "padlock",
+  "prompt": "art/prompts/padlock.txt"
  }
 ]

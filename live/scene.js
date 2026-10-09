@@ -21,7 +21,6 @@
   const put = (n, x, y, h, o = {}) => { const w = L.hsz(n, h), ax = o.ax === undefined ? 0.5 : o.ax, ay = o.ay === undefined ? 1 : o.ay;
     L.sprite(n, 0, 0, { m: M.of(M.t(x, y), M.r(o.ang || 0), M.s(o.sx === undefined ? 1 : o.sx, o.sy === undefined ? 1 : o.sy)), w, h, pivot: [ax * w, ay * h], u: { alpha: o.a === undefined ? 1 : o.a, tint: o.tint || [1, 1, 1, 0] } }); return w; };
   const coin = (x, y, r, spin, a = 1) => { const w = Math.max(0.2, Math.abs(Math.cos(spin))) * r; L.sprite('coin', x - w, y - r, { w: 2 * w, h: 2 * r, u: { alpha: a } }); };
-  const bolt = (x, y, s, col, a = 1) => { bar(x + 4 * s, y - 15 * s, 22 * s, 9 * s, 2.2, col, a); bar(x - 3 * s, y - 2 * s, 22 * s, 9 * s, 0.9, col, a); bar(x + 1 * s, y + 3 * s, 22 * s, 9 * s, 2.2, col, a); };   // lightning zigzag
   const fmtHp = (v) => (v >= 1000 ? (Math.round(v / 100) / 10).toFixed(1) + 'K' : String(Math.max(0, Math.round(v / 10) * 10)));
 
   S.render = (t) => {
@@ -40,13 +39,14 @@
     L.beginBG([0.23, 0.66, 0.74, 1]);
     L.rrect(0, 0, W, GY + 40, 0, [0.23, 0.66, 0.74], [0.66, 0.86, 0.74]);
     const MH = 860, MW = MH * 1.5, mu0 = p.x * 0.1 / MW;                                                                                   // misty cliffs (tiled, slow parallax)
-    L.solid(0, 0, W, GY - 10 - MH + 3, [0.225, 0.675, 0.751], 0, 0, 0, 1);                                                                 // flat sky above the strip = the strip's own top colour (no seam)
+    L.sprite('bg_mountains', 0, 0, { w: W, h: GY - 10 - MH + 2, src: [mu0, 0, mu0 + W / MW, 0.01] });                                       // sky above the strip = its own top rows stretched up (no seam at any screen height)
     L.sprite('bg_mountains', 0, GY - 10 - MH, { w: W, h: MH, src: [mu0, 0, mu0 + W / MW, 1] });
     const layer = (f, sp, fn) => { const cam = p.x * f, i0 = Math.floor((cam - CX - 400) / sp), i1 = Math.ceil((cam + W - CX + 400) / sp); for (let i = i0; i <= i1; i++) fn(i, CX + i * sp - cam + shx * f); };
     layer(0.3, 300, (i, x) => { if (rnd(i, 3) < 0.2) return; put('pine_' + Math.floor(rnd(i, 4) * 3), x + 60 * rnd(i, 5), GY - 4, 250 + 90 * rnd(i, 6), { tint: [0.62, 0.8, 0.78, 0.5] }); });
-    layer(0.62, 520, (i, x) => { if (rnd(i, 7) < 0.35) return; put('pine_' + Math.floor(rnd(i, 8) * 3), x + 90 * rnd(i, 9), GY + 8, 290 + 80 * rnd(i, 10), { tint: [0.7, 0.86, 0.8, 0.3] }); });
+    layer(0.62, 520, (i, x) => { if (rnd(i, 7) < 0.35 || Math.abs(x + 90 * rnd(i, 9) * 0.5 - CX) < 170) return; put('pine_' + Math.floor(rnd(i, 8) * 3), x + 90 * rnd(i, 9), GY + 8, 290 + 80 * rnd(i, 10), { tint: [0.7, 0.86, 0.8, 0.3] }); });
     L.rrect(0, GY - 2, W, H - GY + 6, 0, [0.55, 0.74, 0.40], [0.18, 0.38, 0.10]);
-    L.rrect(0, gyS + 6, W, 120 * z, 0, [0.62, 0.55, 0.28], [0.45, 0.42, 0.20], 0.55);
+    for (let k = 0; k < 8; k++) L.rrect(0, gyS + 6 + k * 16 * z, W, 16 * z + 1, 0, [0.62, 0.55, 0.28], [0.52, 0.48, 0.24], 0.55 * (1 - k / 8));     // dirt track with a soft lower edge
+    for (let k = 0; k < 14; k++) L.solid(0, GY + 160 + k * ((H - GY - 160) / 14), W, (H - GY - 160) / 14 + 1, [0.03, 0.09, 0.02], 0, 0, 0, 0.026 * k);   // foreground darkening
     layer(1, 150, (i, x) => { const r = rnd(i, 9), y = gyS + 20 + 330 * rnd(i, 10), s = 0.6 + 0.9 * (y - gyS) / 330;
       if (r < 0.55) { for (let k = -1; k <= 1; k++) bar(x + k * 9 * s, y, 26 * s, 5 * s, -1.57 + k * 0.5, [0.14, 0.34, 0.08], 0.8); }
       else if (r < 0.8) put('rock_' + (i & 1 ? 0 : 2), x, y + 6 * s, 30 * s, { ay: 1, a: 0.9 }); });
@@ -62,8 +62,9 @@
         L.shadow(x + 20, gyS + 8, w * z * 0.7, 26 * z, 0.4);
         put('tower', x + jx, gyS, hgt * z, { ax: 0.6, ay: 1, sy: cs, tint: [1, 1, 1, 0.5 * hit] });
         const f = q.hp / q.hpMax;
-        if (q.alive && f < 0.7) { bar(x - 10 * z, hy(H0 * 0.8), 90 * z, 6 * z, 1.3, [0.12, 0.12, 0.1], 0.8); bar(x + 20 * z, hy(H0 * 0.55), 80 * z, 6 * z, 1.9, [0.12, 0.12, 0.1], 0.8); }
-        if (q.alive && f < 0.35) { bar(x + 60 * z, hy(H0 * 0.9), 110 * z, 7 * z, 1.7, [0.1, 0.1, 0.08], 0.85); bar(x - 70 * z, hy(H0 * 0.4), 100 * z, 7 * z, 1.2, [0.1, 0.1, 0.08], 0.85); }
+        const crack = (cx, cy, ang, n) => { let px = cx, py = cy; for (let k = 0; k < n; k++) { const an = ang + (k % 2 ? 0.7 : -0.7), l = (26 + 10 * rnd(k, cx)) * z; bar(px, py, l, 5 * z, an, [0.16, 0.15, 0.13], 0.85); px += Math.cos(an) * l; py += Math.sin(an) * l; } };
+        if (q.alive && f < 0.7) { crack(x - 30 * z, hy(H0 * 0.78), 1.1, 3); crack(x + 36 * z, hy(H0 * 0.5), 1.9, 3); }
+        if (q.alive && f < 0.35) { crack(x + 10 * z, hy(H0 * 0.92), 1.5, 4); crack(x - 45 * z, hy(H0 * 0.38), 1.3, 3); crack(x + 50 * z, hy(H0 * 0.7), 1.7, 3); }
         if (q.alive) { const bw = 190, by = top - 62 * z;                                                                                          // HP bar + number (as in the reference)
           L.rrect(x - bw / 2, by, bw, 24, 12, [0.14, 0.14, 0.14], [0.06, 0.06, 0.06], 0.85); L.rrect(x - bw / 2 + 3, by + 3, Math.max(8, (bw - 6) * f), 18, 9, [1, 0.78, 0.2], [0.92, 0.5, 0.06]);
           if (x > 100 && x < W - 100) L.label('twhp' + i, fmtHp(q.hp), x, by - 34, { size: 50, font: FONT, col: '#ffffff', out: '#2a1a00', al: 0.5 }); }
@@ -108,7 +109,8 @@
     if (!(ST.end >= 0 && GT - ST.end > 0.4)) drawCart(sx(p.x), gyS, z, { tier: p.tier, saw: p.saw, dist: p.x, moving: p.v > 20, hurt: flashHurt, upAge, sawBuy: buyAge, grind: grind && p.saw, recoil: clamp(1 - boltAge / 0.15, 0, 1), aim: aim0, hpBar: ST.phase === 'battle' && ST.end < 0 });
 
     // ===================== rolling saw blades, bombs in flight =====================
-    for (const b of ST.blades) { const x = sx(b.x), r = 62 * z, y = gyS - r - 2; put('saw_blade', x, y, 2 * r, { ay: 0.5, ang: GT * -14 }); L.glow(x, y, r * 2, [1, 0.7, 0.3], 0.3, 2.4);
+    for (const b of ST.blades) { const x = sx(b.x), r = 62 * z, y = gyS - r - 2; put('saw_blade', x, y, 2 * r, { ay: 0.5, ang: GT * -14 }); L.glow(x, gyS - 8 * z, r * 1.6, [1, 0.55, 0.2], 0.12, 2.4);
+      for (let j = 0; j < 3; j++) L.puff(x - (50 + j * 40) * z, gyS - (14 + 10 * j) * z, (22 + 8 * j) * z, [0.7, 0.6, 0.42], 0.35 - 0.08 * j, j + 11);
       for (let j = 0; j < 5; j++) L.star(x - (30 + j * 26) * z, gyS - (4 + 14 * rnd(j, Math.floor(GT * 20))) * z, 14 * z, [1, 0.8, 0.4], 0.8 - j * 0.15); }
     for (const e of ST.ev) { if (e.k !== 'throw') continue; const a = GT - e.t; if (a < 0 || a > e.flight) continue; const u = a / e.flight, bx = sx(e.x0) + (sx(e.x) - sx(e.x0)) * u, sh0 = muzzleH - 30, by = gyS - (sh0 * (1 - u) + 520 * Math.sin(Math.PI * u) - 10) * z;
       put('bomb', bx, by, 64 * z, { ay: 0.55, ang: GT * 5 }); L.star(bx + 10 * z, by - 40 * z, 14 * z, [1, 0.8, 0.3], 0.9); }
@@ -117,7 +119,7 @@
     for (const e of ST.ev) { const a = GT - e.t; if (a < 0) continue;
       if (e.k === 'bolt' && a < 0.16) { const x0 = sx(e.x), y0 = hy(muzzleH - 20), x1 = sx(e.tx), u = a / 0.16, y1 = hy(e.tower ? 230 : 130);
         const sxb = x0 + (x1 - x0) * Math.max(0, u - 0.35), syb = y0 + (y1 - y0) * Math.max(0, u - 0.35), exb = x0 + (x1 - x0) * u, eyb = y0 + (y1 - y0) * u;
-        bar(sxb, syb, Math.hypot(exb - sxb, eyb - syb), 5 * z, Math.atan2(eyb - syb, exb - sxb), [1, 0.95, 0.7]); if (a < 0.05) L.glow(x0 + 40 * z, hy(muzzleH - 20), 50 * z, [1, 0.9, 0.5], 0.7, 2.4);
+        { const ln = Math.hypot(exb - sxb, eyb - syb), an = Math.atan2(eyb - syb, exb - sxb); bar(sxb, syb, ln, 16 * z, an, [1, 0.75, 0.3], 0.35); bar(sxb + (exb - sxb) * 0.3, syb + (eyb - syb) * 0.3, ln * 0.7, 9 * z, an, [1, 0.95, 0.7]); bar(sxb + (exb - sxb) * 0.55, syb + (eyb - syb) * 0.55, ln * 0.45, 5 * z, an, [1, 1, 1]); L.glow(exb, eyb, 26 * z, [1, 0.9, 0.5], 0.8, 2.4); } if (a < 0.05) L.glow(x0 + 40 * z, hy(muzzleH - 20), 50 * z, [1, 0.9, 0.5], 0.7, 2.4);
         if (u > 0.9) L.star(x1, y1, 22 * z, [1, 0.9, 0.5], 0.9); }
       if (e.k === 'sawhit' && a < 0.25) { const x = sx(e.x), q = a / 0.25; for (let j = 0; j < 6; j++) { const an = -Math.PI / 2 + (rnd(j, e.t * 9) - 0.5) * 2.6, d = (30 + 80 * rnd(j, 3)) * ease(q) * z;
         L.star(x - 20 * z + Math.cos(an) * d, hy(60) + Math.sin(an) * d + 120 * q * q * z, 12 * z, [1, 0.8, 0.4], 1 - q); } if (a < 0.08) L.glow(x - 20 * z, hy(70), 70 * z, [1, 0.7, 0.3], 0.6, 2.4); }
@@ -181,12 +183,12 @@
       else if (id === 'sawt') put('saw_blade', cx, cy, 80 * s, { ay: 0.5, a, ang: t * 2 });
       else if (id === 'fire') put('flamethrower', cx, cy, 52 * s, { ay: 0.5, a, ang: -0.3 }); };
     const chip = (r, label, enough, ico) => { const cw = 150, cx = r.x + r.w / 2 - cw / 2, cy = r.y + r.h + 10; L.rrect(cx, cy, cw, 44, 22, [0.08, 0.1, 0.14], [0.03, 0.04, 0.06], 0.85);
-      if (ico === 'bolt') bolt(cx + 34, cy + 22, 0.9, enough ? [0.45, 0.8, 1] : [0.6, 0.62, 0.66]); else coin(cx + 34, cy + 22, 16, 0);
+      if (ico === 'bolt') put('bolt', cx + 34, cy + 22, 38, { ay: 0.5, tint: enough ? [1, 1, 1, 0] : [0.55, 0.58, 0.62, 0.75] }); else coin(cx + 34, cy + 22, 16, 0);
       L.label('chip_' + label + ico, label, cx + 64, cy + 23, { size: 34, font: FONT, col: enough ? '#ffffff' : '#c8ccd2', out: '#0a1020' }); };
     if (ST.end < 0 && ST.phase === 'shop') {
       const fS = frame('saw', !ST.bought.saw && ST.money >= K.COST_SAW, !!ST.bought.saw, [0.2, 0.72, 0.28]); icon('sawt', fS.x + fS.w / 2, fS.y + fS.h * 0.42, 1.0, ST.bought.saw ? 0.4 : 1); chip(UI.saw, String(K.COST_SAW), ST.money >= K.COST_SAW && !ST.bought.saw, 'coin');
       if (ST.bought.saw) L.label('sold', 'READY', fS.x + fS.w / 2, fS.y + fS.h * 0.82, { size: 32, font: FONT, col: '#9dff9d', out: '#0a2a0a', al: 0.5 });
-      const fF = frame('firelock', false, true, [0.2, 0.72, 0.28]); icon('fire', fF.x + fF.w / 2, fF.y + fF.h * 0.4, 1.0, 0.35); L.label('lv2', 'CART LV2', fF.x + fF.w / 2, fF.y + fF.h * 0.86, { size: 26, font: FONT, col: '#ffffff', out: '#102a40', al: 0.5 });
+      const fF = frame('firelock', false, true, [0.2, 0.72, 0.28]); icon('fire', fF.x + fF.w / 2, fF.y + fF.h * 0.4, 1.0, 0.3); put('padlock', fF.x + fF.w / 2, fF.y + fF.h * 0.42, 62, { ay: 0.5 }); L.label('lv2', 'CART LV2', fF.x + fF.w / 2, fF.y + fF.h * 0.86, { size: 26, font: FONT, col: '#ffffff', out: '#102a40', al: 0.5 });
       for (const [id, nm, cost, key, sub] of [['cart', 'CART+', K.COST_CART, 'cart', '+HP'], ['energy', 'ENERGY', K.COST_ENERGY, 'energy', '+0.3/s']]) { const on = !ST.bought[key] && ST.money >= cost, f = frame(id, on, !!ST.bought[key], [0.2, 0.78, 0.3]);
         L.label('big_' + id, nm, f.x + f.w / 2, f.y + f.h * 0.26, { size: 46, font: FONT, col: '#ffffff', out: '#0a3a14', al: 0.5 }); L.label('sub_' + id, sub, f.x + f.w / 2, f.y + f.h * 0.5, { size: 36, font: FONT, col: '#d8ffd0', out: '#0a3a14', al: 0.5 });
         L.rrect(f.x + f.w / 2 - 70, f.y + f.h * 0.66, 140, 46, 23, [0.06, 0.2, 0.08], [0.03, 0.1, 0.04], 0.85); coin(f.x + f.w / 2 - 44, f.y + f.h * 0.66 + 23, 17, 0); L.label('bp_' + id, String(cost), f.x + f.w / 2 - 20, f.y + f.h * 0.66 + 24, { size: 34, font: FONT, col: '#ffe066', out: '#3a2300' }); }
@@ -195,11 +197,11 @@
         L.label('start', 'START', r.x + r.w / 2, r.y + r.h / 2 - 2, { size: 84, font: FONT, col: '#5a2c00', out: '#ffe9a0', al: 0.5 }); S.hit.push({ id: 'tap_start', x: r.x, y: r.y, w: r.w, h: r.h }); }
     } else if (ST.end < 0) {
       { const r = UI.enbar, fr = ST.en >= K.EN_MAX ? 1 : ST.en - Math.floor(ST.en), nx = Math.floor(ST.en); L.rrect(r.x - 5, r.y - 5, r.w + 10, r.h + 10, 26, [0.22, 0.24, 0.26], [0.1, 0.1, 0.12]); L.rrect(r.x, r.y, r.w, r.h, 22, [0.72, 0.7, 0.62], [0.52, 0.5, 0.44]);   // energy panel
-        L.rrect(r.x + 6, r.y + 6, Math.max(26, (r.w - 12) * fr), r.h - 12, 18, [0.3, 0.65, 1], [0.12, 0.4, 0.95]); bolt(r.x + 76, r.y + r.h / 2, 3.4, [1, 1, 1]);
+        L.rrect(r.x + 6, r.y + 6, Math.max(26, (r.w - 12) * fr), r.h - 12, 18, [0.3, 0.65, 1], [0.12, 0.4, 0.95]); put('bolt', r.x + 78, r.y + r.h / 2, 128, { ay: 0.5 });
         L.label('en', String(nx), r.x + r.w - 110, r.y + r.h / 2 + 2, { size: 118, font: FONT, col: '#ffffff', out: '#10304a', al: 0.5 }); L.uiBox('enbox', r.x, r.y, r.w, r.h, 2); }
       for (const [id, cost] of [['bomb', K.COST_BOMB], ['sawt', K.COST_SAWT], ['fire', K.COST_FIRE]]) { const locked = id === 'fire' && p.tier < 2, ok = ST.en >= cost && !locked, f = frame(id, ok, locked, [0.18, 0.5, 0.95]);
         icon(id, f.x + f.w / 2, f.y + f.h / 2, 1.2, locked ? 0.35 : ok ? 1 : 0.6);
-        if (locked) { circ(f.x + f.w / 2, f.y + f.h / 2 + 4, 26, [0.9, 0.78, 0.3], [0.6, 0.45, 0.1]); L.rrect(f.x + f.w / 2 - 17, f.y + f.h / 2 + 4, 34, 30, 6, [0.95, 0.82, 0.35], [0.65, 0.5, 0.12]); }
+        if (locked) put('padlock', f.x + f.w / 2, f.y + f.h / 2 + 4, 76, { ay: 0.5 });
         chip(UI[id], String(cost), ok, 'bolt'); }
       if (ST.up && !ST.upDone && GT >= ST.up.t0) { const r = UI.bubble, q = clamp((GT - ST.up.t0) / 0.3, 0, 1), pul = 1 + 0.05 * Math.sin(t * 7), ok = ST.money >= K.UP_COST, w = r.w * ease(q) * pul, h = r.h * ease(q) * pul, x = r.x + (r.w - w) / 2, y = r.y + (r.h - h) / 2 + 8 * Math.sin(t * 4);   // ⬆ price bubble
         L.glow(x + w / 2, y + h / 2, w * 0.9, [1, 0.85, 0.4], 0.3, 2.4); L.rrect(x, y, w, h, 36, ok ? [1, 0.85, 0.3] : [0.7, 0.7, 0.72], ok ? [0.95, 0.55, 0.1] : [0.5, 0.5, 0.54]);
@@ -217,19 +219,21 @@
       if (e.k === 'towerdown') pop('td', 'TOWER DESTROYED!', W / 2, H * 0.2, 1.3, 74, '#fff27a', '#7a1a00');
       if (e.k === 'upgrade') pop('up', 'CART UPGRADED!', W / 2, H * 0.2, 1.6, 78, '#fff27a', '#5a3a00');
       if (e.k === 'upgrade' && a > 0.5) pop('newfire', 'FIRE UNLOCKED!', W / 2, H * 0.27, 1.4, 62, '#ffb060', '#6a1a00');
-      if (e.k === 'nope') pop('nope', e.coin ? 'NEED ' + Math.ceil(e.need) + ' COINS' : 'NOT ENOUGH ENERGY', W / 2, H * 0.2, 0.9, 52, '#ffffff', '#8a1208');
+      if (e.k === 'nope') pop('nope', e.msg || (e.coin ? 'NEED ' + Math.ceil(e.need) + ' COINS' : 'NOT ENOUGH ENERGY'), W / 2, H * 0.2, 0.9, 52, '#ffffff', '#8a1208');
       if (e.k === 'locked') pop('lock', 'UPGRADE YOUR CART FIRST', W / 2, H * 0.2, 1.0, 46, '#ffffff', '#6b4a00'); }
     let dj = 0;                                                                                                                                                        // damage numbers (max 3, stacked)
     for (const e of ST.ev) { if (e.k !== 'dmg') continue; const a = GT - e.t, x = sx(e.x); if (a < 0 || a > 0.7 || x < 120 || x > W - 120 || dj >= 3) continue; const j = dj++;
       L.label('dmg' + j, '-' + e.v, x, hy(e.y ? 330 : 260) - 110 * a + j * 64, { size: 46, font: FONT, col: '#fff27a', out: '#5a3a00', al: 0.5, a: 1 - SS(0.5, 0.7, a) }); }
+    for (const e of ST.ev) { if (e.k !== 'autotap') continue; const a = GT - e.t, r = UI[e.id]; if (a < 0 || a > 0.5) continue; const hx = r.x + r.w * 0.66, hyy = r.y + r.h * 0.34, pr = a < 0.15 ? 0.9 : 1;
+      L.ring(hx, hyy, 30 + 90 * (a / 0.5), 30 + 90 * (a / 0.5), WHITE, 0.6 * (1 - a / 0.5), 0.1); put('hand', hx, hyy, 135 * pr, { ax: 0.5, ay: 0.02, ang: -0.75, a: 1 - SS(0.35, 0.5, a) }); }   // ghost tap: the cart casts for an idle viewer
     // ---- tutorial: banner + hand pointing at the hinted card ----
     const BAN = { saw: 'TAP TO BUILD YOUR CART!', start: 'READY? TAP START!', bomb: 'TAP TO ATTACK!', sawt: 'TAP THE SAW!', fire: 'FIRE! TAP NOW!', bubble: 'UPGRADE YOUR CART!' };
     if (ST.end < 0 && ST.hint) { const r = UI[ST.hint], bn = 1 + 0.04 * Math.sin(t * 6), txt = BAN[ST.hint], tw = L.labelW('tut', txt, { size: Math.round(62 * bn), font: FONT });
       if (!calloutOn) { L.rrect(W / 2 - tw / 2 - 40, 330 - 56, tw + 80, 112, 56, [0.05, 0.08, 0.14], [0.02, 0.03, 0.06], 0.72); L.uiBox('tutbox', W / 2 - tw / 2 - 40, 330 - 56, tw + 80, 112, 4);
         L.label('tut', txt, W / 2, 330, { size: Math.round(62 * bn), font: FONT, col: '#ffffff', out: '#102a40', al: 0.5 }); }
-      const hx = r.x + r.w * 0.5 + 6, hyy = r.y + r.h * 0.5 - 6 + 8 * Math.sin(t * 7), tapq = (t * 1.1) % 1, down = tapq > 0.6, hs = down ? 0.9 : 1, rr = 30 + 60 * ease(Math.min(1, tapq * 1.2));
+      const hx = r.x + r.w * 0.66, hyy = r.y + r.h * 0.34 + 8 * Math.sin(t * 7), tapq = (t * 1.1) % 1, down = tapq > 0.6, hs = down ? 0.9 : 1, rr = 30 + 60 * ease(Math.min(1, tapq * 1.2));
       if (down) L.ring(hx, hyy, rr, rr, WHITE, 0.55 * (1 - Math.min(1, (tapq - 0.6) / 0.4)), 0.1);
-      put('hand', hx, hyy, 150 * hs, { ax: 0.5, ay: 0.02, ang: -0.45 }); }                                                                                      // fingertip on the card, hand tilts away from the price
+      put('hand', hx, hyy, 135 * hs, { ax: 0.5, ay: 0.02, ang: -0.75 }); }                                                                                      // fingertip on the card, hand tilts away from the price
     if (ST.end < 0) { const bw = 330, bh = 104, bx = W - bw - 36, by = H - bh - 44, pul = 1 + 0.03 * Math.sin(t * 5);                                              // persistent CTA bar
       L.rrect(24, by - 18, W - 48, bh + 36, 30, [0.06, 0.08, 0.14], [0.03, 0.04, 0.08], 0.74); L.uiBox('ctabar', 24, by - 18, W - 48, bh + 36, 4);
       L.label('brand', 'SIEGE CART', 70, by + bh / 2, { size: 50, font: FONT, col: '#ffd84a', out: '#2a1a00' });
@@ -244,11 +248,11 @@
         L.label('logo', 'SIEGE CART', W / 2, 430 + oy, { size: Math.round(124 * s1), font: FONT, col: '#ffd84a', out: '#3a2000', al: 0.5 });
         L.label('tag', 'Smash towers. Upgrade your cart!', W / 2, 540 + oy, { size: 52, font: FONT, col: '#ffffff', out: '#102a40', al: 0.5, a: k }); }
       const sm = pop(0.35); if (sm > 0.01) { L.glow(W / 2 - 40, 880 + oy, 340, [1, 0.85, 0.4], 0.25, 2.2); drawCart(W / 2 - 20, 1180 + oy + (1 - sm) * 200, 0.9 * sm, { tier: 2, saw: true, dist: t * 90, moving: true, hurt: 0, upAge: 99, sawBuy: 99, grind: false, recoil: 0, aim: -0.1 + 0.03 * Math.sin(t * 3), hpBar: false }); }
-      const s2 = pop(0.45); if (s2 > 0.01) L.label('stat', ST.kills + ' SKELETONS SMASHED · ' + ST.earned + ' COINS', W / 2, 1230 + oy, { size: Math.round(42 * s2), font: FONT, col: '#bff58a', out: '#173307', al: 0.5 });
+      const s2 = pop(0.45); if (s2 > 0.01) L.label('stat', ST.kills + ' SKELETONS SMASHED · ' + ST.towersDown + ' TOWERS DOWN', W / 2, 1230 + oy, { size: Math.round(42 * s2), font: FONT, col: '#bff58a', out: '#173307', al: 0.5 });
       const s3 = pop(0.7), pul = 1 + 0.045 * Math.sin(t * 6), bw = 640 * s3 * pul, bh = 170 * s3 * pul, bx = W / 2 - bw / 2, by = 1420 + oy - bh / 2;
       if (s3 > 0.01) { L.glow(W / 2, 1420 + oy, 420, [1, 0.8, 0.3], 0.3, 2.2); L.rrect(bx, by + 12, bw, bh, bh / 2, [0.55, 0.30, 0.02], [0.45, 0.22, 0.0]); L.rrect(bx, by, bw, bh, bh / 2, [1.0, 0.86, 0.30], [0.98, 0.58, 0.10]); L.uiBox('endcta', bx, by, bw, bh, 2);
         L.label('endcta', 'PLAY FREE', W / 2, by + bh / 2, { size: Math.round(86 * s3), font: FONT, col: '#ffffff', out: '#7a3a00', al: 0.5 }); S.hit.push({ id: 'cta', x: bx, y: by, w: bw, h: bh }); }
-      if (a > 1.2) { L.label('replay', '↻ REPLAY', W / 2, 1620 + oy, { size: 46, font: FONT, col: '#ffffff', out: '#102a40', al: 0.5, a: SS(1.2, 1.6, a) }); S.hit.unshift({ id: 'replay', x: W / 2 - 170, y: 1580 + oy, w: 340, h: 80 }); }
+      if (a > 1.2) { L.label('replay', '↻ REPLAY', W / 2, 1620 + oy, { size: 58, font: FONT, col: '#ffffff', out: '#102a40', al: 0.5, a: SS(1.2, 1.6, a) }); S.hit.unshift({ id: 'replay', x: W / 2 - 170, y: 1570 + oy, w: 400, h: 100 }); }
       if (a > 0.6) S.hit.push({ id: 'cta', x: 0, y: 0, w: W, h: H }); }
   };
 

@@ -80,7 +80,7 @@ Card frames, bars, numbers, fire/explosion/sparks = code.
 - [x] 3. ART (Gate A): art/style_bible.txt (≤ 6 lines, measured from study/ref) → one prompt per asset in art/prompts/
       (see `<S>/template/prompts` as examples) → art/jobs.json → `python <S>/scripts/gen_batch.py art/jobs.json`
       (background) → slice sheets → one contact sheet, reject wrong camera at once → stills + Sonnet critic (critic-brief.md).
-- [ ] 4. FEEL (Gate B): apply critic top fixes (max 2 rounds), 60 fps on 390×844, `verify.sh all` green.
+- [x] 4. FEEL (Gate B): apply critic top fixes (max 2 rounds), 60 fps on 390×844, `verify.sh all` green.
 - [ ] 5. VARIANTS + DELIVERY: variants/ (short_loop: tower 1 only, fast energy; power_fantasy: FIRE from start;
       tight_timebox: END_MAX 20) → `python tools/build_playable.py --variant all` → dist/*/report.md.
 - [ ] 6. PUBLISH (ask the user before pushing): .gitignore (study/ref, frames, art/raw, art/logs, dist except docs),
@@ -122,4 +122,14 @@ Card frames, bars, numbers, fire/explosion/sparks = code.
   distance, saw/blade spin, legs swing around the hip, crates pop with overshoot, tower squashes on collapse, hand = fingertip pivot, tinted flashes).
   sim geometry for the bigger cart: frontOf 270 (saw) / 190, flame origin +280, blade +300. Demo now ends at 17.0 s (win), passive endcard 12.0 s.
   Known art nits: bg_mountains tiles with a small colour step at the seam (every ~1290 px of parallax); skel_body hip cut shows a red cap.
+- 2026-10-09 phase 4 DONE (Sonnet 5.5): Gate A critic (study/critique/gateA.md: overall 6.5, art 7, tech 8) → round 1 fixes applied:
+  sim: idle viewers get auto-cast with a ghost tap after 3.5 s quiet (`K.AUTO_IDLE/AUTO_GAP`, event `autotap`), END_NO_INPUT 15 / END_IDLE 12, start energy 1 so a
+  card lights up at ~2.6 s, tower 1 at x=1500, per-tower `wake`/`gap` (tower 2: wake 1000, gap 0.45 → 5-6 skeletons alive when FIRE lands), hint null once win/lose started,
+  FIRE offered only ≥1.3 s after the upgrade, progress bar = towers down + current segment (no early full bar), "BUY THE SAW FIRST!" when CART+/ENERGY tapped first.
+  scene: sky strip's top rows stretched up (no seam on tall phones), near pines sparser/muted and skipped behind the archer, dirt band soft edge + foreground darkening,
+  generated bolt + padlock sprites (2 extra Codex images), hand fingertip on the card's upper right and tilted away from the price, tapered bolt with trail, saw blade glow
+  toned down + dust, short jagged cracks inside the tower, endcard stat = skeletons + towers (no coin mismatch), bigger REPLAY.
+  Results: demo wins at 16.8 s (tower 1 9.5, upgrade 11.0, FIRE 12.9, tower 2 14.8); idle viewer after SAW+START: tower 1 + upgrade + FIRE before endcard at 13 s;
+  fully passive: endcard 15.0 s after tower 1, upgrade, FIRE. `verify.sh all` = VERIFY OK, 0.50 MB per network (Meta limit 2 MB), fps 61.
+  NOT done (nice-to-have for phase 5/polish): tile a real ground texture (ground_tex is not generated), starting-hook variants, Gate B critic after variants exist.
 

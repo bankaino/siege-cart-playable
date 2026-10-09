@@ -1,0 +1,5 @@
+Use case: energy icon for a mobile game HUD.
+Subject: one chunky glossy lightning bolt symbol: a bright cyan-white #dff6ff core with a saturated electric-blue #2f8cff edge and soft inner gradient, thick rounded zig-zag shape (classic energy bolt), soft highlight on the upper left, casual 3D-render look.
+Orientation: upright, centred.
+Composition: one bolt, centred, filling about 88% of the canvas height, margin all round.
+Constraints: one bolt only, no text, no circle behind it, no glow, no ground, no shadow.

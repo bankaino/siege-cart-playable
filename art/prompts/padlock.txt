@@ -1,0 +1,5 @@
+Use case: locked-card icon for a mobile game HUD.
+Subject: one chunky cartoon padlock seen face-on: a rounded gold #e8a62a body with a darker #b87a14 shade, a thick steel #b9c2cc shackle arc on top, a small dark keyhole in the centre, soft highlight on the upper left, casual 3D-render look.
+Orientation: upright, closed, centred.
+Composition: one padlock, centred, filling about 88% of the canvas height, margin all round.
+Constraints: one padlock only, no text, no chain, no ground, no shadow, no glow.

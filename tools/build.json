@@ -96,6 +96,14 @@
     "rock_2": [
       110,
       "alpha"
+    ],
+    "bolt": [
+      110,
+      "alpha"
+    ],
+    "padlock": [
+      110,
+      "alpha"
     ]
   }
 }

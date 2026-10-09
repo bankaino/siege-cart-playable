@@ -1,0 +1,10 @@
+[
+ {
+  "name": "bolt",
+  "prompt": "art/prompts/bolt.txt"
+ },
+ {
+  "name": "padlock",
+  "prompt": "art/prompts/padlock.txt"
+ }
+]
