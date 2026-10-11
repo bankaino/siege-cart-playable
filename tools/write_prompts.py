@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """write_prompts.py — (re)writes art/style_bible.txt, art/prompts/*.txt and art/jobs.json for Siege Cart. Run from the project root.
-Edit the texts here, run again, then: python ~/.claude/skills/ref2playable/scripts/gen_batch.py art/jobs.json"""
+Edit the texts here, run again, then generate the images from art/jobs.json"""
 import json, os
 
 STYLE = """STYLE BIBLE: polished casual-mobile 3D-render look matching Image 1 (a mobile game ad), NOT pixel art and NOT flat vector: smooth rounded chunky forms, soft clean shading with gentle gradients (2-3 readable tones per surface: lit top-left, base, soft shade bottom-right), subtle ambient-occlusion darkening in crevices, no outlines, no texture noise; slightly exaggerated toy proportions.
