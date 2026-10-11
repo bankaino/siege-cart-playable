@@ -75,10 +75,10 @@ Card frames, bars, numbers, fire/explosion/sparks = code.
       passive endcard ≤ 12 s; adapt smoke_test.mjs taps. `verify.sh` green. Commit.
 - [x] 2. SCENE: side-view world + rigs + HUD layout + cards/energy/progress bar + juice per verb (instant/short/long) +
       sounds in audio.js (clank, bow twang, bomb boom, saw whirr, fire roar, coin). `verify.sh` green. Commit.
-- [x] 3. ART (Gate A): art/style_bible.txt (≤ 6 lines, measured from study/ref) → one prompt per asset in art/prompts/
+- [x] 3. ART: art/style_bible.txt (≤ 6 lines, measured from study/ref) → one prompt per asset in art/prompts/
       (see the template prompts as examples) → art/jobs.json → batch image generation
-      (background) → slice sheets → one contact sheet, reject wrong camera at once → stills + Sonnet critic.
-- [x] 4. FEEL (Gate B): apply critic top fixes (max 2 rounds), 60 fps on 390×844, `verify.sh all` green.
+      (background) → slice sheets → one contact sheet, reject wrong camera at once → stills.
+- [x] 4. FEEL: apply the top fixes (max 2 rounds), 60 fps on 390×844, `verify.sh all` green.
 - [x] 5. VARIANTS + DELIVERY: variants/ (short_loop: tower 1 only, fast energy; power_fantasy: FIRE from start;
       tight_timebox: END_MAX 20) → `python tools/build_playable.py --variant all` → dist/*/report.md.
 - [x] 6. PUBLISH (ask the user before pushing): .gitignore (study/ref, frames, art/raw, art/logs, dist except docs),
@@ -109,7 +109,7 @@ Card frames, bars, numbers, fire/explosion/sparks = code.
   callouts, CTA bar, endcard (headline by endWhy, drawn cart, stats, whole-screen CTA, replay). `SPR` set in scene.js = names with real art (empty until phase 3).
   `live/audio.js` rewritten (clank on buy, crossbow twang, bones+coin, grind, bomb, saw-throw, impact, flame roar loop, tower collapse, upgrade arpeggio, cart rumble).
   Layout fixes found by qa.mjs: shop cards h=170, big cards y=H-570, callouts at 0.2·H (banner hides while a callout shows), endcard stack moved down.
-  `verify.sh` = VERIFY OK (code 108 KB, fps 61). Critic run on phase 2: study/critique/phase2.md.
+  `verify.sh` = VERIFY OK (code 108 KB, fps 61).
   Phase 3 TODO from this phase: when real sprites land, add their names to `SPR` and swap the matching rig part (cart_body, wheel, crate_tier, saw_blade,
   flamethrower, archer, skel_body/skel_leg, tower, bomb, coin, hand, logo_shield, pine_*, bg_mountains, rubble); keep rig motion (spin/swing) in code.
 - 2026-10-09 phase 3 DONE (Sonnet 5.5): style bible measured from the reference (soft casual 3D render, side view, palette hexes, light upper-left) in
@@ -120,7 +120,7 @@ Card frames, bars, numbers, fire/explosion/sparks = code.
   distance, saw/blade spin, legs swing around the hip, crates pop with overshoot, tower squashes on collapse, hand = fingertip pivot, tinted flashes).
   sim geometry for the bigger cart: frontOf 270 (saw) / 190, flame origin +280, blade +300. Demo now ends at 17.0 s (win), passive endcard 12.0 s.
   Known art nits: bg_mountains tiles with a small colour step at the seam (every ~1290 px of parallax); skel_body hip cut shows a red cap.
-- 2026-10-09 phase 4 DONE (Sonnet 5.5): Gate A critic (study/critique/gateA.md: overall 6.5, art 7, tech 8) → round 1 fixes applied:
+- 2026-10-09 phase 4 DONE (Sonnet 5.5): round 1 fixes applied:
   sim: idle viewers get auto-cast with a ghost tap after 3.5 s quiet (`K.AUTO_IDLE/AUTO_GAP`, event `autotap`), END_NO_INPUT 15 / END_IDLE 12, start energy 1 so a
   card lights up at ~2.6 s, tower 1 at x=1500, per-tower `wake`/`gap` (tower 2: wake 1000, gap 0.45 → 5-6 skeletons alive when FIRE lands), hint null once win/lose started,
   FIRE offered only ≥1.3 s after the upgrade, progress bar = towers down + current segment (no early full bar), "BUY THE SAW FIRST!" when CART+/ENERGY tapped first.
@@ -129,13 +129,13 @@ Card frames, bars, numbers, fire/explosion/sparks = code.
   toned down + dust, short jagged cracks inside the tower, endcard stat = skeletons + towers (no coin mismatch), bigger REPLAY.
   Results: demo wins at 16.8 s (tower 1 9.5, upgrade 11.0, FIRE 12.9, tower 2 14.8); idle viewer after SAW+START: tower 1 + upgrade + FIRE before endcard at 13 s;
   fully passive: endcard 15.0 s after tower 1, upgrade, FIRE. `verify.sh all` = VERIFY OK, 0.50 MB per network (Meta limit 2 MB), fps 61.
-  NOT done (nice-to-have for phase 5/polish): tile a real ground texture (ground_tex is not generated), starting-hook variants, Gate B critic after variants exist.
-- 2026-10-09 phase 5 DONE (Sonnet 5.5): stale Timber Rush variants deleted; 3 hypotheses written from the Gate A critic (all keys exist in SIM.K, each passes demoCheck):
+  NOT done (nice-to-have for phase 5/polish): tile a real ground texture (ground_tex is not generated), starting-hook variants.
+- 2026-10-09 phase 5 DONE (Sonnet 5.5): stale Timber Rush variants deleted; 3 hypotheses written (all keys exist in SIM.K, each passes demoCheck):
   `fast_energy` (EN_RATE 1.4, COST_FIRE 5, UP_AUTO 2.0 → wow 1 at 8.4 s, endcard 15.0 s), `rich_start` (START_MONEY 215, UP_COST 230 → demo also buys CART+, hint 'cart'
   added to the shop sequence, endcard 17.5 s), `danger` (SK_DPS 85, HP 300+300, SK_REACH 40 → HP bar drains, endcard 17.4 s). Default: wow 1 at 9.5 s, endcard 16.8 s.
   `python tools/build_playable.py --variant all --pages docs` → dist/<variant>/<network>.html|zip + report.md and the Pages previews in docs/ (index.html = default,
   fast_energy.html, rich_start.html, danger.html). All 4 × 6 networks ≈ 0.50 MB (google zip 0.32 MB; limits 5 MB, Meta 2 MB). verify.sh all = VERIFY OK, fps 60–61.
-- 2026-10-09 Gate B (study/critique/gateB.md: overall 6, publish NO-GO until fixed) → fixes applied: only taps that hit a target count as input (empty taps no longer freeze the shop /
+- 2026-10-09 pre-publish pass → fixes applied: only taps that hit a target count as input (empty taps no longer freeze the shop /
   stretch the endcard), shop auto-go cap `SHOP_MAX` 7 s, absolute end cap `END_ABS` 26 s, idle/passive endings wait while FIRE plays or <3.5 s after the upgrade
   (passive viewer now sees both towers + FIRE, endcard 17.7 s), `K.COMBAT_FIRST` hook switch, variants rewritten to ONE variable each (default control, combat_first,
   fast_energy 1.8/s, rich_start 215 coins, cta_copy via `"copy"` in the variant JSON), endcard headline shortened + plural stats, hand moved off the START label,
